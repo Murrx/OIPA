@@ -674,7 +674,7 @@ def __unicode__(self,):
 
 
 class Title(models.Model):
-    activity = models.ForeignKey(Activity)
+    activity = models.ForeignKey(Activity, related_name='titles')
     title = models.CharField(max_length=255, db_index=True)
     language = models.ForeignKey(Language, null=True, default=None)
 
@@ -683,7 +683,7 @@ class Title(models.Model):
 
 
 class Description(models.Model):
-    activity = models.ForeignKey(Activity)
+    activity = models.ForeignKey(Activity, related_name='descriptions')
     description = models.TextField(null=True, default=None, db_index=True, max_length=40000)
     language = models.ForeignKey(Language, null=True, default=None)
     type = models.ForeignKey(DescriptionType, related_name="description_type", null=True, default=None)
