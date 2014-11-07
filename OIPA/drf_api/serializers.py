@@ -36,3 +36,10 @@ class ActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = iati.models.Activity
         fields = ('id','iati_identifier', 'titles', 'descriptions')
+
+
+class ActivityDetailSerializer(ActivityListSerializer):
+    sector = serializers.SlugRelatedField(many=True, slug_field='name')
+    class Meta:
+        model = iati.models.Activity
+        fields = ()
