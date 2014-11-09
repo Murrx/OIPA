@@ -42,9 +42,8 @@ class RegionActivityCount(generics.RetrieveAPIView):
 
     def get(self, request, pk):
         activity_count = iati.models.Activity.objects.filter(recipient_region=pk).count()
-        serializer = serializers.RegionActivityCountSerializer()
-        serializer.a
-        return Response(serializer.data)
+        serializer = serializers.RegionActivityCountSerializer(data=activity_count)
+        return Response({'activity_count': activity_count})
 
 
 class ActivityList(generics.ListAPIView):
