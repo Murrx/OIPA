@@ -1,6 +1,7 @@
 import geodata.models
 import iati.models
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 
 class CityDetailSerializer(serializers.ModelSerializer):
@@ -17,15 +18,25 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'country', 'location')
 
 
-class RegionListSerializer(serializers.ModelSerializer):
+class RegionListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = geodata.models.Region
-        fields = ('code', 'name', 'center_longlat')
+        fields = ('code', 'url', 'name')
 
 
 class RegionDetailSerializer(serializers.ModelSerializer):
+    activity_count = serializers.CharField(source='code', read_only=True)
     class Meta:
         model = geodata.models.Region
+        fields = ()
+
+    def transform_activity_count(self, obj, value):
+        # Replace with hostname:
+        return 'http://localhost:8000' + reverse('region-activity-count', args=(value,))
+
+class RegionActivityCountSerializer(serializers.Serializer):
+    activity_count = serializers.CharField(read_only=True)
+    class Meta:
         fields = ()
 
 
