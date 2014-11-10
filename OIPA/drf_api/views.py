@@ -116,3 +116,12 @@ class CitiesInCountryList(generics.ListAPIView):
         pk = self.kwargs.get('pk')
         country = geodata.models.Country(pk=pk)
         return country.city_set.all()
+
+
+class ActivitiesInCountryList(generics.ListAPIView):
+    serializer_class = serializers.ActivityListSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        country = geodata.models.Country(pk=pk)
+        return country.activity_set.all()

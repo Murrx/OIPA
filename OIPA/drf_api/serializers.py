@@ -65,9 +65,10 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
 class CountryDetailSerializer(serializers.ModelSerializer):
     capital_city = serializers.HyperlinkedRelatedField(view_name='city-detail', queryset='iati.models.Cyties.objects.all')
     cities = serializers.HyperlinkedIdentityField(view_name='cities')
+    activity_set = serializers.HyperlinkedIdentityField(view_name='activities')
     class Meta:
         model = geodata.models.Country
-        fields = ('code', 'name', 'capital_city', 'cities', 'numerical_code_un', 'alt_name', 'language', 'region', 'un_region', 'unesco_region', 'dac_country_code', 'iso3', 'alpha3', 'fips10', 'center_longlat', 'polygon', 'data_source')
+        fields = ('code', 'name', 'capital_city', 'cities', 'activity_set', 'numerical_code_un', 'alt_name', 'language', 'region', 'un_region', 'unesco_region', 'dac_country_code', 'iso3', 'alpha3', 'fips10', 'center_longlat', 'polygon', 'data_source')
 
 
 class CountryListSerializer(serializers.ModelSerializer):
