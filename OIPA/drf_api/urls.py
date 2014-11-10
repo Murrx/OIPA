@@ -13,6 +13,8 @@ urlpatterns = patterns(
     url(r'^activities/(?P<pk>[^@$&+,/:;=?]+)/$',
         views.ActivityDetail.as_view(), name='activity-detail'
     ),
+    url(r'^activities/(?P<pk>[^@$&+,/:;=?]+)/recipient-countries', views.RecipientCountries.as_view(), name='activity-recipient-countries'),
+
     url(r'^regions/(?P<pk>[0-9]+)/$', views.RegionDetail.as_view(), name='region-detail'),
     url(r'^cities/(?P<pk>[0-9]+)/$', views.CityDetail.as_view(), name='city-detail'),
     url(r'^regions/(?P<pk>[0-9]+)/countries-in-region', views.CountriesInRegion.as_view(), name='countries-in-region'),

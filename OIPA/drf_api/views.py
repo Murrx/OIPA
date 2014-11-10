@@ -98,3 +98,12 @@ class ChildRegionList(generics.ListAPIView):
         pk = self.kwargs.get('pk')
         region = geodata.models.Region(pk=pk)
         return list(region.region_set.all())
+
+
+class RecipientCountries(generics.ListAPIView):
+    serializer_class = serializers.CountryListSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        activity = iati.models.Activity(pk=pk)
+        return activity.recipient_country.all()

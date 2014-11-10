@@ -46,29 +46,31 @@ class RegionActivityCountSerializer(serializers.Serializer):
 
 class ActivityListSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='activity-detail')
-    descriptions = serializers.SlugRelatedField(many=True, slug_field='description')
     titles = serializers.SlugRelatedField(many=True, slug_field='title')
 
     class Meta:
         model = iati.models.Activity
-        fields = ('id','url' , 'url','iati_identifier', 'titles', 'descriptions')
+        fields = ('id', 'url', 'titles')
 
 
-class ActivityDetailSerializer(ActivityListSerializer):
+class ActivityDetailSerializer(serializers.ModelSerializer):
     sector = serializers.SlugRelatedField(many=True, slug_field='name')
+    recipient_countries = serializers.HyperlinkedIdentityField(view_name='activity-recipient-countries')
+
     class Meta:
         model = iati.models.Activity
-        fields = ()
+        fields = ('id', 'iati_identifier', 'sector', 'recipient_countries', 'default_currency', 'hierarchy', 'last_updated_datetime', 'linked_data_uri', 'reporting_organisation', 'secondary_publisher', 'activity_status', 'start_planned', 'end_planned', 'start_actual', 'end_actual', 'collaboration_type', 'default_flow_type', 'default_aid_type', 'default_finance_type', 'default_tied_status', 'xml_source_ref', 'total_budget_currency', 'total_budget', 'capital_spend', 'scope', 'iati_standard_version', 'participating_organisation', 'policy_marker', 'recipient_region')
 
 
 class CountryDetailSerializer(serializers.ModelSerializer):
+    capital_city = serializers.HyperlinkedRelatedField(view_name='city-detail', queryset='iati.models.Cyties.objects.all')
     class Meta:
         model = geodata.models.Country
         fields = ()
 
 
 class CountryListSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='country-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='')
     class Meta:
         model = geodata.models.Country
         fields =('code', 'url', 'name', )
