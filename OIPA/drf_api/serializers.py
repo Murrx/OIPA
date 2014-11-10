@@ -25,14 +25,14 @@ class RegionListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RegionDetailSerializer(serializers.ModelSerializer):
-    activity_count = serializers.HyperlinkedIdentityField(view_name='region-activity-count')
+    related_activity_count = serializers.HyperlinkedIdentityField(view_name='region-activity-count')
     countries_in_region = serializers.HyperlinkedIdentityField(view_name='countries-in-region')
-    #related_activities = serializers.HyperlinkedRelatedField(many=True, view_name='activity-detail', read_only=True)
     related_activities = serializers.HyperlinkedIdentityField(view_name='region-related-activities')
-    region_set = serializers.HyperlinkedRelatedField(many=True, view_name='region-detail')
+    parental_region = serializers.HyperlinkedRelatedField(view_name='region-detail')
+    child_regions = serializers.HyperlinkedIdentityField(view_name='child-regions',)
     class Meta:
         model = geodata.models.Region
-        fields = ('code', 'name', 'region_vocabulary', 'parental_region', 'center_longlat', 'countries_in_region', 'activity_count', 'related_activities', 'region_set')
+        fields = ('code', 'name', 'region_vocabulary', 'center_longlat', 'parental_region', 'countries_in_region', 'related_activity_count', 'related_activities', 'child_regions',)
 
     def transform_activity_count(self, obj, value):
         pass
@@ -45,12 +45,13 @@ class RegionActivityCountSerializer(serializers.Serializer):
 
 
 class ActivityListSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='activity-detail')
     descriptions = serializers.SlugRelatedField(many=True, slug_field='description')
     titles = serializers.SlugRelatedField(many=True, slug_field='title')
 
     class Meta:
         model = iati.models.Activity
-        fields = ('id','iati_identifier', 'titles', 'descriptions')
+        fields = ('id','url' , 'url','iati_identifier', 'titles', 'descriptions')
 
 
 class ActivityDetailSerializer(ActivityListSerializer):
@@ -58,3 +59,16 @@ class ActivityDetailSerializer(ActivityListSerializer):
     class Meta:
         model = iati.models.Activity
         fields = ()
+
+
+class CountryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = geodata.models.Country
+        fields = ()
+
+
+class CountryListSerializer(serializers.ModelSerializer):
+    code = serializers.HyperlinkedIdentityField(view_name='country-detail')
+    class Meta:
+        model = geodata.models.Country
+        fields =('code', 'name', )
