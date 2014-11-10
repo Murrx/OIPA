@@ -79,7 +79,6 @@ class CountriesInRegion(generics.ListAPIView):
         child_regions = region.region_set.all()
         countries = list (region.un_region.all())
         if child_regions.exists():
-            pass
             for region in child_regions:
                 countries += list(self.get_countries(region.pk))
         return countries
@@ -125,3 +124,28 @@ class ActivitiesInCountryList(generics.ListAPIView):
         pk = self.kwargs.get('pk')
         country = geodata.models.Country(pk=pk)
         return country.activity_set.all()
+
+
+class RegionDerivedActivities(generics.ListAPIView):
+    serializer_class = serializers.ActivityListSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        region_countries = self.get_countries(pk)
+        activities = []
+        for country in region_countries:
+            activities += self.get_activities(country) 
+        return activities 
+
+    def get_countries(self, pk):
+        region = geodata.models.Region(pk=pk)
+        child_regions = region.region_set.all()
+        countries = region.un_region.all()
+        if child_regions.exists():
+            for region in child_regions:
+                countries = chain(self.get_countries(region.pk), countries)
+        return countries
+
+    def get_activities(self, country):
+        return list(country.activity_set.all())
+
