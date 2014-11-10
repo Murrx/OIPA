@@ -107,3 +107,12 @@ class RecipientCountries(generics.ListAPIView):
         pk = self.kwargs.get('pk')
         activity = iati.models.Activity(pk=pk)
         return activity.recipient_country.all()
+
+
+class CitiesInCountryList(generics.ListAPIView):
+    serializer_class = serializers.CityListSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        country = geodata.models.Country(pk=pk)
+        return country.city_set.all()

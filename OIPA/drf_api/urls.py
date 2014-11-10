@@ -24,6 +24,7 @@ urlpatterns = patterns(
 
     url(r'^countries/$', views.CountryList.as_view(), name='country-list'),
     url(r'^countries/(?P<pk>[a-zA-z]+)/$', views.CountryDetail.as_view(), name='country-detail'),
+    url(r'^countries/(?P<pk>[a-zA-z]+)/cities', views.CitiesInCountryList.as_view(), name='cities'),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

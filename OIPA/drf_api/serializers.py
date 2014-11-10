@@ -64,13 +64,14 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
 
 class CountryDetailSerializer(serializers.ModelSerializer):
     capital_city = serializers.HyperlinkedRelatedField(view_name='city-detail', queryset='iati.models.Cyties.objects.all')
+    cities = serializers.HyperlinkedIdentityField(view_name='cities')
     class Meta:
         model = geodata.models.Country
-        fields = ()
+        fields = ('code', 'name', 'capital_city', 'cities', 'numerical_code_un', 'alt_name', 'language', 'region', 'un_region', 'unesco_region', 'dac_country_code', 'iso3', 'alpha3', 'fips10', 'center_longlat', 'polygon', 'data_source')
 
 
 class CountryListSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='')
+    url = serializers.HyperlinkedIdentityField(view_name='country-detail')
     class Meta:
         model = geodata.models.Country
         fields =('code', 'url', 'name', )
