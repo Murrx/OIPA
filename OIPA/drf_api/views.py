@@ -67,13 +67,12 @@ class ActivityDetail(generics.RetrieveAPIView):
     serializer_class = serializers.ActivityDetailSerializer
 
 
-class CountriesInRegion(APIView):
+class CountriesInRegion(generics.ListAPIView):
+    serializer_class = serializers.CountryListSerializer
 
-    def get(self, request, pk):
-        data = {
-            'countries': (reverse('country-detail', args=[country.code], request=request,) for country in self.get_countries(pk))
-        }
-        return Response(data)
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        return self.get_countries(pk)
 
     def get_countries(self, pk):
         region = geodata.models.Region(pk=pk)

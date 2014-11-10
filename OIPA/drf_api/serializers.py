@@ -68,7 +68,7 @@ class CountryDetailSerializer(serializers.ModelSerializer):
 
 
 class CountryListSerializer(serializers.ModelSerializer):
-    code = serializers.HyperlinkedIdentityField(view_name='country-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='country-detail')
     class Meta:
         model = geodata.models.Country
-        fields =('code', 'name', )
+        fields =('code', 'url', 'name', )
