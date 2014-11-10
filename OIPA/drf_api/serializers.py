@@ -25,14 +25,14 @@ class RegionListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RegionDetailSerializer(serializers.ModelSerializer):
-    activity_count = serializers.CharField(source='code', read_only=True)
+    activity_count = serializers.HyperlinkedIdentityField(view_name='region-activity-count')
+    countries_in_region = serializers.HyperlinkedIdentityField(view_name='countries-in-region')
+    #related_activities = serializers.HyperlinkedRelatedField(many=True, view_name='activity-detail', read_only=True)
+    related_activities = serializers.HyperlinkedIdentityField(view_name='region-related-activities')
     class Meta:
         model = geodata.models.Region
-        fields = ()
+        fields = ('code', 'name', 'region_vocabulary', 'parental_region', 'center_longlat', 'countries_in_region', 'activity_count', 'related_activities')
 
-    def transform_activity_count(self, obj, value):
-        # Replace with hostname:
-        return 'http://localhost:8000' + reverse('region-activity-count', args=(value,))
 
 class RegionActivityCountSerializer(serializers.Serializer):
     activity_count = serializers.CharField(read_only=True)

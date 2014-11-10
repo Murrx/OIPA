@@ -430,7 +430,7 @@ class Activity(models.Model):
     policy_marker = models.ManyToManyField(PolicyMarker, through="ActivityPolicyMarker")
     sector = models.ManyToManyField(Sector, through="ActivitySector")
     recipient_country = models.ManyToManyField(Country, through="ActivityRecipientCountry")
-    recipient_region = models.ManyToManyField(Region, through="ActivityRecipientRegion")
+    recipient_region = models.ManyToManyField(Region, through="ActivityRecipientRegion", related_name='related_activities')
 
     collaboration_type = models.ForeignKey(CollaborationType, null=True, default=None)
     default_flow_type = models.ForeignKey(FlowType, null=True, default=None)

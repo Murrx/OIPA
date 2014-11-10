@@ -54,3 +54,17 @@ class ActivityList(generics.ListAPIView):
 class ActivityDetail(generics.RetrieveAPIView):
     queryset = iati.models.Activity.objects.all()
     serializer_class = serializers.ActivityDetailSerializer
+
+
+class CountriesInRegion(APIView):
+
+    def get(self, request, pk):
+        region = geodata.models.Region(pk=pk)
+        return Response(country.name for country in region.country_set.all())
+
+
+class RegionRelatedActivities(APIView):
+
+    def get(self, request, pk):
+        region = geodata.models.Region(pk=pk)
+        return Response(activity.__unicode__() for activity in region.related_activities.all())

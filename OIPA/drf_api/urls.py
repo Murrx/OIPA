@@ -15,7 +15,9 @@ urlpatterns = patterns(
     ),
     url(r'^regions/(?P<pk>[0-9]+)/$', views.RegionDetail.as_view(), name='region-detail'),
     url(r'^cities/(?P<pk>[0-9]+)/$', views.CityDetail.as_view(), name='city-detail'),
-    url(r'^regions/(?P<pk>[0-9]+)/count', views.RegionActivityCount.as_view(), name='region-activity-count'),
+    url(r'^regions/(?P<pk>[0-9]+)/countries-in-region', views.CountriesInRegion.as_view(), name='countries-in-region'),
+    url(r'^regions/(?P<pk>[0-9]+)/activity-count', views.RegionActivityCount.as_view(), name='region-activity-count'),
+    url(r'^regions/(?P<pk>[0-9]+)/related-activities', views.RegionRelatedActivities.as_view(), name='region-related-activities'),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
