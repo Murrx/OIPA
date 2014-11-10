@@ -29,9 +29,13 @@ class RegionDetailSerializer(serializers.ModelSerializer):
     countries_in_region = serializers.HyperlinkedIdentityField(view_name='countries-in-region')
     #related_activities = serializers.HyperlinkedRelatedField(many=True, view_name='activity-detail', read_only=True)
     related_activities = serializers.HyperlinkedIdentityField(view_name='region-related-activities')
+    region_set = serializers.HyperlinkedRelatedField(many=True, view_name='region-detail')
     class Meta:
         model = geodata.models.Region
-        fields = ('code', 'name', 'region_vocabulary', 'parental_region', 'center_longlat', 'countries_in_region', 'activity_count', 'related_activities')
+        fields = ('code', 'name', 'region_vocabulary', 'parental_region', 'center_longlat', 'countries_in_region', 'activity_count', 'related_activities', 'region_set')
+
+    def transform_activity_count(self, obj, value):
+        pass
 
 
 class RegionActivityCountSerializer(serializers.Serializer):
