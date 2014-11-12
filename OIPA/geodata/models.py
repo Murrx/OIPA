@@ -7,8 +7,19 @@ class Region(models.Model):
     region_vocabulary = models.ForeignKey('iati.RegionVocabulary', default=1)
     parental_region = models.ForeignKey('self', null=True, blank=True)
     center_longlat = models.PointField(null=True, blank=True)
-    objects = models.GeoManager()
+    def _get_activity_count(self):
+        return self.related_activities.all().count()
 
+
+#   def get(self, request, pk):
+#       activity_count = iati.models.Activity.objects.filter(recipient_region=pk).count()
+#       serializer = serializers.RegionActivityCountSerializer(data=activity_count)
+#       return Response({'activity_count': activity_count})
+
+
+    total_activities = property(_get_activity_count)
+
+    objects = models.GeoManager()
     def __unicode__(self):
         return self.name
 
@@ -30,7 +41,7 @@ class Country(models.Model):
     polygon = models.TextField(null=True, blank=True)
     data_source = models.CharField(max_length=20, null=True, blank=True)
     objects = models.GeoManager()
-
+    
     class Meta:
         verbose_name_plural = "countries"
 
