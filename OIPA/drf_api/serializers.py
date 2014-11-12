@@ -25,6 +25,19 @@ class RegionListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RegionDetailSerializer(serializers.ModelSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super(RegionDetailSerializer, self).__init__(*args, **kwargs)
+
+        fields = self.context['request'].QUERY_PARAMS.get('fields')
+        if fields:
+            fields = fields.split(',')
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
     related_activity_count = serializers.HyperlinkedIdentityField(view_name='region-activity-count')
     countries_in_region = serializers.HyperlinkedIdentityField(view_name='countries-in-region')
     related_activities = serializers.HyperlinkedIdentityField(view_name='region-related-activities')
