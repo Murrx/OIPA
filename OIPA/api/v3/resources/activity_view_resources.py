@@ -198,7 +198,7 @@ class ActivityResource(ModelResource):
 
 
     def apply_filters(self, request, applicable_filters):
-        activity_list = super(ActivityResource, self).apply_filters(request, applicable_filters).prefetch_related('title_set').prefetch_related('description_set')
+        activity_list = super(ActivityResource, self).apply_filters(request, applicable_filters).prefetch_related('titles').prefetch_related('descriptions')
         query = request.GET.get('query', None)
         filter_year_param = request.GET.get('start_year_planned__in', None)
 
