@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'indicator_unesco',
     'translation_model',
     'rest_framework',
+    'debug_toolbar',
 )
 
 SUIT_CONFIG = {
