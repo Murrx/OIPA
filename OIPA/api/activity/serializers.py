@@ -2,9 +2,35 @@ from rest_framework import serializers
 import iati
 
 
-class ActivityDetailSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='activity-detail')
+class ActivitySectorSerializer(serializers.ModelSerializer):
+    activity = serializers.HyperlinkedRelatedField(view_name='activity-detail')
+    sector = serializers.HyperlinkedRelatedField(view_name='sector-detail')
 
+    class Meta:
+        model = iati.models.ActivitySector
+        fields = (
+            'activity',
+            'sector',
+            'alt_sector_name',
+            'vocabulary',
+            'percentage',
+        )
+
+
+class ActivityDetailSerializer(serializers.ModelSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super(ActivityDetailSerializer, self).__init__(*args, **kwargs)
+
+        include_param = self.context['request'].QUERY_PARAMS.get('include')
+        if include_param:
+            include_fields = include_param.split(',')
+            for field in self.Meta.includable_fields:
+                if field in include_fields:
+                    serializer = self.Meta.includable_fields.get(field)
+                    self.fields[field] = serializer
+
+    url = serializers.HyperlinkedIdentityField(view_name='activity-detail')
     # Linked fields
     sectors = serializers.HyperlinkedIdentityField(
         view_name='activity-sectors')
@@ -13,7 +39,6 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
     activitypolicymarker_set = serializers.RelatedField(many=True)
     activityrecipientcountry_set = serializers.RelatedField(many=True)
     activityrecipientregion_set = serializers.RelatedField(many=True)
-    activitysector_set = serializers.RelatedField(many=True)
     activitywebsite_set = serializers.RelatedField(many=True)
     budget_set = serializers.RelatedField(many=True)
     condition_set = serializers.RelatedField(many=True)
@@ -92,24 +117,13 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
             'title_set',  # iati: title || use plural (titles) for set name?
             'transaction_set',
         )
+        includable_fields = {
+            'sectors': ActivitySectorSerializer(many=True,
+                                                source='activitysector_set'),
+        }
 
 
 class ActivityListSerializer(ActivityDetailSerializer):
     class Meta:
         model = iati.models.Activity
         fields = ('id', 'url', 'title_set')
-
-
-class ActivitySectorSerializer(serializers.ModelSerializer):
-    activity = serializers.HyperlinkedRelatedField(view_name='activity-detail')
-    sector = serializers.HyperlinkedRelatedField(view_name='sector-detail')
-
-    class Meta:
-        model = iati.models.ActivitySector
-        fields = (
-            'activity',
-            'sector',
-            'alt_sector_name',
-            'vocabulary',
-            'percentage',
-        )
