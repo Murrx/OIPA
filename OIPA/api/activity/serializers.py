@@ -36,61 +36,64 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
         model = iati.models.Activity
         fields = (
             # Normal fields
-            'url', # |x| iati: -
+            'url',  # |x| iati: -
             'id',  # |x| iati: -
-            'iati_identifier',  # |v| iati: iati_identifier
-            'default_currency',
-            'hierarchy',
-            'last_updated_datetime',
-            'linked_data_uri',
-            'reporting_organisation',  # iati: reporting_org
-            'secondary_publisher',
-            'activity_status',  # iati: activity-status
-            'start_planned',
-            'end_planned',
-            'start_actual',
-            'end_actual',
-            'collaboration_type',
-            'default_flow_type',
-            'default_aid_type',
-            'default_finance_type',
-            'default_tied_status',
-            'xml_source_ref',
-            'total_budget_currency',
-            'total_budget',
-            'capital_spend',
-            'scope',
-            'iati_standard_version',
+            'iati_identifier',  # |?| iati: iati-identifier
+            'default_currency',  # |?| iati: default-currency
+            'hierarchy',  # |v| iati: hierarchy
+            'last_updated_datetime',  # |?| iati: last-updated-datetime
+            'linked_data_uri',  # |?| iait: linked-data-uri
+            'reporting_organisation',  # |x| iati: reporting-org
+            'secondary_publisher',  # |x| iati: secondary-reporter
+                                    # |x| property of reporting-org
+            'activity_status',  # |v| iati: activity-status
+            'start_planned',  # |x| iati: activity-date.start-planned
+            'end_planned',  # |x| iati: activity-date.end-planned
+            'start_actual',  # |x| iati: activity-date.start-actual
+            'end_actual',  # |x| iati: activity-date.end-actual
+            'collaboration_type',  # |?| iati: collaboration-type
+            'default_flow_type',  # |?| iati: default-flow-type
+            'default_aid_type',  # |?| iati: default-aid-type
+            'default_finance_type',  # |?| iati: default-finance-type
+            'default_tied_status',  # |?| iati: default-tied-status
+            'xml_source_ref',  # |x| iati: -
+            'total_budget_currency',  # |x| iati: -
+            'total_budget',  # |x| iati: -
+            'capital_spend',  # |?| iati: capital-spend
+            'scope',  # |x| iati: activity-scope
+            'iati_standard_version',  # |x| iati: -
 
             # Linked fields
-            'participating_organisation',
-            'policy_marker',
-            'sectors',
-            'recipient_country',
-            'recipient_region',
+            'participating_organisation',  # |x| iati: participaing-org
+            'policy_marker',  # |?| iati: policy-marker
+            'sectors',  # |?| iati: sector
+            'recipient_country',  # |?| iati: recipient-country
+            'recipient_region',  # |?| iati: recipient-region
 
             # Reverse linked fields
-            'activitypolicymarker_set',
-            'activityrecipientcountry_set',
-            'activityrecipientregion_set',
-            'activitysector_set',
-            'activitywebsite_set',
-            'budget_set',
-            'condition_set',
-            'contactinfo_set',
-            'countrybudgetitem_set',
-            'crsadd_set',
-            'current_activity',
-            'description_set',  # iati: description || set name descriptions?
-            'documentlink_set',
-            'ffs_set',
-            'location_set',
-            'otheridentifier_set',  # iati: other-identifier || not a set
-            'participating_organisations',
-            'planneddisbursement_set',
-            'result_set',
-            'title_set',  # iati: title || use plural (titles) for set name?
-            'transaction_set',
+            'activitypolicymarker_set',  # |x| iati: policy-marker
+            'activityrecipientcountry_set',  # |x| iati: recipient-country
+            'activityrecipientregion_set',  # |x| iati: recipient-region
+            'activitysector_set',  # |x| iati: sector
+            'activitywebsite_set',  # |x| iati: contact-info.website
+            'budget_set',  # |x| iati: budget
+            'condition_set',  # |x| iati: conditions
+            'contactinfo_set',  # |x| iati: contact-info
+            'countrybudgetitem_set',  # |x| iati: country-budget-items
+            'crsadd_set',  # |x| iati: crs-add
+            'current_activity',  # |x| iati: related-activity
+                                 # |x| rename: related_activities
+            'description_set',  # |x| iati: description
+            'documentlink_set',  # |x| iati: document-link
+            'ffs_set',  # |x| iati: fss
+                        # |x| name verry wrong
+            'location_set',  # |x| iati: location
+            'otheridentifier_set',  # |x| iati: other-identifier
+            'participating_organisations',  # |x| iati: participating-org
+            'planneddisbursement_set',  # |x| iati: planned-disbursement
+            'result_set',  # |x| iati: result
+            'title_set',  # |x| iati: title
+            'transaction_set',  # |x| iati: transaction
         )
 
 
