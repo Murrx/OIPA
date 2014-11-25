@@ -36,9 +36,9 @@ class ActivityDetailSerializer(serializers.ModelSerializer):
         model = iati.models.Activity
         fields = (
             # Normal fields
-            'url',
-            'id',
-            'iati_identifier',
+            'url', # |x| iati: -
+            'id',  # |x| iati: -
+            'iati_identifier',  # |v| iati: iati_identifier
             'default_currency',
             'hierarchy',
             'last_updated_datetime',
