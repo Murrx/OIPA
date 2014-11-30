@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'iati',
     'iati_synchroniser',
     'geodata',
+    'parseit',
     'indicator',
     'api',
     'cache',
