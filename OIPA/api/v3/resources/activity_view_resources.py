@@ -5,7 +5,7 @@ from tastypie.resources import ModelResource
 
 # Data specific
 from api.cache import NoTransformCache
-from iati.models import ContactInfo, Activity, Organisation, AidType, FlowType, Sector, CollaborationType, TiedStatus, Transaction, ActivityStatus, Currency, OrganisationRole, ActivityScope, ActivityParticipatingOrganisation
+from iati.models import ContactInfo, Activity, Organisation, AidType, FlowType, Sector, CollaborationType, TiedStatus, Transaction, ActivityStatus, Currency, OrganisationRole, ActivityScope, ActivityParticipatingOrganisation, ActivityParticipatingOrganisation
 from api.v3.resources.helper_resources import TitleResource, DescriptionResource, FinanceTypeResource, ActivityBudgetResource, DocumentResource, WebsiteResource, PolicyMarkerResource, OtherIdentifierResource
 from api.v3.resources.advanced_resources import OnlyCountryResource, OnlyRegionResource
 
@@ -67,6 +67,12 @@ class ActivityViewOrganisationResource(ModelResource):
             'iati_identifier': 'exact',
             'code': ALL_WITH_RELATIONS
         }
+
+class ParticipatingOrganisationResource(ModelResource):
+    organisation = fields.ToOneField(ActivityViewOrganisationResource, 'organisation', full=True, null=True)
+    class Meta:
+        queryset = ActivityParticipatingOrganisation.objects.all()
+        excludes = ['name',]
 
 
 
@@ -142,7 +148,6 @@ class ActivityResource(ModelResource):
     sectors = fields.ToManyField(ActivityViewSectorResource, 'sector', full=True, null=True, use_in='all')
     titles = fields.ToManyField(TitleResource, 'title_set', full=True, null=True, use_in='all')
     descriptions = fields.ToManyField(DescriptionResource, 'description_set', full=True, null=True, use_in='all')
-    participating_organisations = fields.ToManyField(ActivityViewOrganisationResource, 'participating_organisation', full=True, null=True, use_in='all')
     reporting_organisation = fields.ForeignKey(ActivityViewOrganisationResource, 'reporting_organisation', full=True, null=True, use_in='detail' )
     activity_status = fields.ForeignKey(ActivityViewActivityStatusResource, 'activity_status', full=True, null=True, use_in='detail')
     websites = fields.ToManyField(WebsiteResource, 'activity_website_set', full=True, null=True, use_in='detail')
@@ -158,6 +163,7 @@ class ActivityResource(ModelResource):
     transactions = fields.ToManyField(ActivityViewTransactionResource, 'transaction_set', full=True, null=True, use_in='detail')
     documents = fields.ToManyField(DocumentResource, 'documentlink_set', full=True, null=True, use_in='detail')
     other_identifier = fields.ToManyField(OtherIdentifierResource, 'otheridentifier_set', full=True, null=True, use_in='detail')
+    participating_organisations = fields.ToManyField(ParticipatingOrganisationResource, 'participating_organisations', full=True, null=True, use_in='all')
     # to add:
     # locations
     # conditions
