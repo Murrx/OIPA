@@ -5,7 +5,7 @@ from tastypie.resources import ModelResource
 
 # Data specific
 from api.cache import NoTransformCache
-from iati.models import ContactInfo, Activity, Organisation, AidType, FlowType, Sector, CollaborationType, TiedStatus, Transaction, ActivityStatus, Currency, OrganisationRole, ActivityScope, ActivityParticipatingOrganisation, ActivityParticipatingOrganisation
+from iati.models import ContactInfo, Activity, Organisation, AidType, FlowType, Sector, CollaborationType, TiedStatus, Transaction, ActivityStatus, Currency, OrganisationRole, ActivityScope, ActivityParticipatingOrganisation, ActivityParticipatingOrganisation, Location
 from api.v3.resources.helper_resources import TitleResource, DescriptionResource, FinanceTypeResource, ActivityBudgetResource, DocumentResource, WebsiteResource, PolicyMarkerResource, OtherIdentifierResource
 from api.v3.resources.advanced_resources import OnlyCountryResource, OnlyRegionResource
 
@@ -140,6 +140,10 @@ class ActivityViewContactInfoResource(ModelResource):
         include_resource_uri = False
         excludes = ['id']
 
+class ActivityViewLocationResource(ModelResource):
+    class Meta:
+        queryset = Location.objects.all()
+        include_resource_uri = False
 
 
 class ActivityResource(ModelResource):
@@ -164,6 +168,7 @@ class ActivityResource(ModelResource):
     documents = fields.ToManyField(DocumentResource, 'documentlink_set', full=True, null=True, use_in='detail')
     other_identifier = fields.ToManyField(OtherIdentifierResource, 'otheridentifier_set', full=True, null=True, use_in='detail')
     participating_organisations = fields.ToManyField(ParticipatingOrganisationResource, 'participating_organisations', full=True, null=True, use_in='all')
+    location = fields.ToManyField(ActivityViewLocationResource, 'location_set', full=True, null=True, use_in='all')
     # to add:
     # locations
     # conditions
