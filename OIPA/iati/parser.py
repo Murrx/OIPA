@@ -227,6 +227,8 @@ class Parser():
             activity_id = activity_id.replace(":", "-")
             activity_id = activity_id.replace(" ", "")
 
+            akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+
 
 
             default_currency_ref = self.return_first_exist(elem.xpath('@default-currency'))
@@ -329,7 +331,7 @@ class Parser():
                 if models.ActivityScope.objects.filter(code=activity_scope_ref).exists():
                     activity_scope = models.ActivityScope.objects.get(code=activity_scope_ref)
 
-            new_activity = models.Activity(id=activity_id, default_currency=default_currency, hierarchy=hierarchy, last_updated_datetime=last_updated_datetime, linked_data_uri=linked_data_uri, reporting_organisation=reporting_organisation, secondary_publisher=secondary_publisher, activity_status=activity_status, collaboration_type=collaboration_type, default_flow_type=default_flow_type, default_aid_type=default_aid_type, default_finance_type=default_finance_type, default_tied_status=default_tied_status, xml_source_ref=self.xml_source_ref, iati_identifier=iati_identifier, iati_standard_version=iati_standard_version, capital_spend=capital_spend, scope=activity_scope)
+            new_activity = models.Activity(id=activity_id, default_currency=default_currency, hierarchy=hierarchy, last_updated_datetime=last_updated_datetime, linked_data_uri=linked_data_uri, reporting_organisation=reporting_organisation, secondary_publisher=secondary_publisher, activity_status=activity_status, collaboration_type=collaboration_type, default_flow_type=default_flow_type, default_aid_type=default_aid_type, default_finance_type=default_finance_type, default_tied_status=default_tied_status, xml_source_ref=self.xml_source_ref, iati_identifier=iati_identifier, iati_standard_version=iati_standard_version, capital_spend=capital_spend, scope=activity_scope, akvo_type=akvo_type)
             new_activity.save()
             return new_activity
 
@@ -371,6 +373,7 @@ class Parser():
 
                         language_ref = self.return_first_exist(t.xpath('@xml:lang'))
                         language = None
+                        akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
                         if title.__len__() > 255:
                             title = title[:255]
 
@@ -379,7 +382,7 @@ class Parser():
                                 language = models.Language.objects.get(code=language_ref)
 
 
-                        new_title = models.Title(activity=activity, title=title, language=language)
+                        new_title = models.Title(activity=activity, title=title, language=language, akvo_type=akvo_type)
                         new_title.save()
 
                 except Exception as e:
@@ -403,6 +406,7 @@ class Parser():
                     rsr_type_ref = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/api/v1/iati-activities'}))
                     rsr_type = None
 
+                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
 
                     if language_ref:
                         if models.Language.objects.filter(code=language_ref).exists():
@@ -457,7 +461,7 @@ class Parser():
                                     new_activity_sector.save()
 
 
-                    new_description = models.Description(activity=activity, description=description, type=type, language=language, rsr_description_type_id=rsr_type_ref)
+                    new_description = models.Description(activity=activity, description=description, type=type, language=language, rsr_description_type_id=rsr_type_ref, akvo_type=akvo_type)
                     new_description.save()
 
 
@@ -498,7 +502,8 @@ class Parser():
                     value_date = self.validate_date(self.return_first_exist(t.xpath('value/@value-date')))
 
 
-
+            
+                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
                     currency_ref = self.return_first_exist(t.xpath('value/@currency'))
                     currency = None
 
@@ -535,7 +540,7 @@ class Parser():
                         continue
 
 
-                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, currency=currency)
+                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, currency=currency, akvo_type=akvo_type)
                     new_budget.save()
 
                 except Exception as e:
@@ -1000,7 +1005,8 @@ class Parser():
                         if models.OrganisationRole.objects.filter(code=role_ref).exists():
                             role = models.OrganisationRole.objects.get(code=role_ref)
 
-                    new_activity_participating_organisation = models.ActivityParticipatingOrganisation(activity=activity, organisation=participating_organisation, role=role, name=name)
+                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+                    new_activity_participating_organisation = models.ActivityParticipatingOrganisation(activity=activity, organisation=participating_organisation, role=role, name=name, akvo_type=akvo_type)
                     new_activity_participating_organisation.save()
 
 
@@ -1183,6 +1189,7 @@ class Parser():
                     point_srs_name = self.return_first_exist(t.xpath('point/@srsName'))
                     point_pos = self.return_first_exist(t.xpath('point/pos/text()'))
 
+                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
 
                     if type_ref:
                         if models.LocationType.objects.filter(code=type_ref).exists():
@@ -1230,7 +1237,7 @@ class Parser():
                         if models.LocationType.objects.filter(code=feature_designation_ref).exists():
                             feature_designation = models.LocationType.objects.get(code=feature_designation_ref)
 
-                    new_location = models.Location(activity=activity, ref=ref, name=name, type=type, type_description=type_description, description=description, description_type=description_type, adm_country_iso=adm_country_iso, adm_country_adm1=adm_country_adm1, adm_country_adm2=adm_country_adm2, adm_country_name=adm_country_name, percentage=percentage, latitude=latitude, longitude=longitude, precision=precision, gazetteer_entry=gazetteer_entry, gazetteer_ref=gazetteer_ref, location_reach=location_reach, location_id_vocabulary=location_id_vocabulary, location_id_code=location_id_code, adm_code=adm_code, adm_vocabulary=adm_vocabulary, adm_level=adm_level, activity_description=activity_description, exactness=exactness, location_class=location_class, feature_designation=feature_designation, point_srs_name=point_srs_name, point_pos=point_pos)
+                    new_location = models.Location(activity=activity, ref=ref, name=name, type=type, type_description=type_description, description=description, description_type=description_type, adm_country_iso=adm_country_iso, adm_country_adm1=adm_country_adm1, adm_country_adm2=adm_country_adm2, adm_country_name=adm_country_name, percentage=percentage, latitude=latitude, longitude=longitude, precision=precision, gazetteer_entry=gazetteer_entry, gazetteer_ref=gazetteer_ref, location_reach=location_reach, location_id_vocabulary=location_id_vocabulary, location_id_code=location_id_code, adm_code=adm_code, adm_vocabulary=adm_vocabulary, adm_level=adm_level, activity_description=activity_description, exactness=exactness, location_class=location_class, feature_designation=feature_designation, point_srs_name=point_srs_name, point_pos=point_pos, akvo_type=akvo_type)
                     new_location.save()
 
 
@@ -1281,6 +1288,8 @@ class Parser():
                     # language_ref = self.return_first_exist(t.xpath('language/@code'))
                     # language = None
 
+                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+
 
 
                     if file_format_ref:
@@ -1297,7 +1306,7 @@ class Parser():
 
 
 
-                    document_link = models.DocumentLink(activity=activity, url=url, file_format=file_format, document_category=doc_category, title=title)
+                    document_link = models.DocumentLink(activity=activity, url=url, file_format=file_format, document_category=doc_category, title=title, akvo_type=akvo_type)
                     document_link.save()
 
 
