@@ -444,6 +444,7 @@ class Activity(models.Model):
     capital_spend = models.DecimalField(max_digits=5, decimal_places=2, null=True, default=None)
     scope = models.ForeignKey(ActivityScope, null=True, default=None)
     iati_standard_version = models.CharField(max_length=30, null=True, default=None)
+    akvo_type = models.CharField(null=True, max_length=100)
 
     objects = ActivityQuerySet.as_manager()
 
@@ -470,6 +471,7 @@ class ActivityParticipatingOrganisation(models.Model):
     organisation = models.ForeignKey(Organisation, null=True, default=None)
     role = models.ForeignKey(OrganisationRole, null=True, default=None)
     name = models.TextField(null=True, default=None)
+    akvo_type = models.CharField(null=True, max_length=100)
 
     def __unicode__(self,):
         return "%s: %s - %s" % (self.activity, self.organisation, self.name)
@@ -623,6 +625,7 @@ class DocumentLink(models.Model):
     file_format = models.ForeignKey(FileFormat, null=True, default=None)
     document_category = models.ForeignKey(DocumentCategory, null=True, default=None)
     title = models.CharField(max_length=255, null=True, default=None)
+    akvo_type = models.CharField(null=True, max_length=100)
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.url)
@@ -677,6 +680,7 @@ class Title(models.Model):
     activity = models.ForeignKey(Activity)
     title = models.CharField(max_length=255, db_index=True)
     language = models.ForeignKey(Language, null=True, default=None)
+    akvo_type = models.CharField(null=True, max_length=100)
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.title)
@@ -688,6 +692,7 @@ class Description(models.Model):
     language = models.ForeignKey(Language, null=True, default=None)
     type = models.ForeignKey(DescriptionType, related_name="description_type", null=True, default=None)
     rsr_description_type_id = models.IntegerField(null=True, default=None) # remove
+    akvo_type = models.CharField(null=True, max_length=100)
 
 
     def __unicode__(self,):
@@ -702,6 +707,7 @@ class Budget(models.Model):
     value = models.DecimalField(max_digits=15, decimal_places=2)
     value_date = models.DateField(null=True, default=None)
     currency = models.ForeignKey(Currency, null=True, default=None)
+    akvo_type = models.CharField(null=True, max_length=100)
 
 
     def __unicode__(self,):
@@ -784,6 +790,7 @@ class Location(models.Model):
     exactness = models.ForeignKey(GeographicExactness, null=True, default=None) # new in v1.04
     feature_designation = models.ForeignKey(LocationType, null=True, default=None, related_name="feature_designation") #new in v1.04
     location_class = models.ForeignKey(GeographicLocationClass, null=True, default=None) #new in v1.04
+    akvo_type = models.CharField(null=True, max_length=100)
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.name)
