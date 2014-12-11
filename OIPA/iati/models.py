@@ -625,6 +625,7 @@ class DocumentLink(models.Model):
     file_format = models.ForeignKey(FileFormat, null=True, default=None)
     document_category = models.ForeignKey(DocumentCategory, null=True, default=None)
     title = models.CharField(max_length=255, null=True, default=None)
+    title_akvo_type = models.CharField(null=True, max_length=100)
     akvo_type = models.CharField(null=True, max_length=100)
 
     def __unicode__(self,):
@@ -706,9 +707,8 @@ class Budget(models.Model):
     period_end = models.CharField(max_length=50, null=True, default=None)
     value = models.DecimalField(max_digits=15, decimal_places=2)
     value_date = models.DateField(null=True, default=None)
+    value_akvo_type = models.CharField(null=True, max_length=100)
     currency = models.ForeignKey(Currency, null=True, default=None)
-    akvo_type = models.CharField(null=True, max_length=100)
-
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.period_start)

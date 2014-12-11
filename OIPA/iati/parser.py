@@ -538,7 +538,7 @@ class Parser():
                         continue
 
 
-                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, akvo_type=value_akvo_type, currency=currency)
+                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, value_akvo_type=value_akvo_type, currency=currency)
                     new_budget.save()
 
                 except Exception as e:
@@ -1307,7 +1307,7 @@ class Parser():
 
 
 
-                    document_link = models.DocumentLink(activity=activity, url=url, file_format=file_format, document_category=doc_category, title=title, akvo_type=akvo_type)
+                    document_link = models.DocumentLink(activity=activity, url=url, file_format=file_format, document_category=doc_category, title=title, title_akvo_type=title_akvo_type, akvo_type=akvo_type)
                     document_link.save()
 
 
