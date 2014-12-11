@@ -445,6 +445,7 @@ class Activity(models.Model):
     scope = models.ForeignKey(ActivityScope, null=True, default=None)
     iati_standard_version = models.CharField(max_length=30, null=True, default=None)
     akvo_type = models.CharField(null=True, max_length=100)
+    aidstream_id = models.CharField(null=True, max_length=100)
 
     objects = ActivityQuerySet.as_manager()
 

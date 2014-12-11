@@ -243,6 +243,8 @@ class Parser():
             linked_data_uri = self.return_first_exist(elem.xpath('@linked-data-uri'))
             iati_standard_version = self.return_first_exist(elem.xpath('@version'))
 
+            aidstream_id = self.return_first_exist(elem.xpath('@aidstream-id'))
+
             reporting_organisation_ref = self.return_first_exist(elem.xpath('reporting-org/@ref'))
             reporting_organisation = None
 
@@ -329,7 +331,7 @@ class Parser():
                 if models.ActivityScope.objects.filter(code=activity_scope_ref).exists():
                     activity_scope = models.ActivityScope.objects.get(code=activity_scope_ref)
 
-            new_activity = models.Activity(id=activity_id, default_currency=default_currency, hierarchy=hierarchy, last_updated_datetime=last_updated_datetime, linked_data_uri=linked_data_uri, reporting_organisation=reporting_organisation, secondary_publisher=secondary_publisher, activity_status=activity_status, collaboration_type=collaboration_type, default_flow_type=default_flow_type, default_aid_type=default_aid_type, default_finance_type=default_finance_type, default_tied_status=default_tied_status, xml_source_ref=self.xml_source_ref, iati_identifier=iati_identifier, iati_standard_version=iati_standard_version, capital_spend=capital_spend, scope=activity_scope, akvo_type=akvo_type)
+            new_activity = models.Activity(id=activity_id, default_currency=default_currency, hierarchy=hierarchy, last_updated_datetime=last_updated_datetime, linked_data_uri=linked_data_uri, reporting_organisation=reporting_organisation, secondary_publisher=secondary_publisher, activity_status=activity_status, collaboration_type=collaboration_type, default_flow_type=default_flow_type, default_aid_type=default_aid_type, default_finance_type=default_finance_type, default_tied_status=default_tied_status, xml_source_ref=self.xml_source_ref, iati_identifier=iati_identifier, iati_standard_version=iati_standard_version, capital_spend=capital_spend, scope=activity_scope, akvo_type=akvo_type, aidstream_id=aidstream_id)
             new_activity.save()
             return new_activity
 
