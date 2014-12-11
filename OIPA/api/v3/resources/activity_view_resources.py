@@ -202,7 +202,8 @@ class ActivityResource(ModelResource):
             'regions': ('exact', 'in'),
             'countries': ('exact', 'in'),
             'reporting_organisation': ('exact', 'in'),
-            'documents': ALL_WITH_RELATIONS
+            'documents': ALL_WITH_RELATIONS,
+            'xml_source_ref': ('exact', 'in'),
         }
         cache = NoTransformCache()
         paginator_class = NoCountPaginator
