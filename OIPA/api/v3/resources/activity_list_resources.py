@@ -57,6 +57,7 @@ class ActivityListResource(ActivityResource):
             'countries': ALL_WITH_RELATIONS,
             'reporting_organisation': ('exact', 'in'),
             'participating_organisation': ALL,
+            'xml_source_ref': ('exact', 'in'),
             'participating_organisations': ALL_WITH_RELATIONS
         }
         cache = NoTransformCache()
