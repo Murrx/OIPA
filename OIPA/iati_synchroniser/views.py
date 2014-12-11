@@ -19,7 +19,7 @@ def request_parse_url_view(request):
         result['publisher'] = 'does_not_exist'
 
     try:
-        xml_source = models.IatiXmlSource.objects.get(ref=xml_ref, source_url=xml_source_url)
+        xml_source = models.IatiXmlSource.objects.get(source_url=xml_source_url)
         result['iati_xml_source'] = 'exists'
 
     except models.IatiXmlSource.DoesNotExist:

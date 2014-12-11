@@ -227,9 +227,7 @@ class Parser():
             activity_id = activity_id.replace(":", "-")
             activity_id = activity_id.replace(" ", "")
 
-            akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
-
-
+            akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
 
             default_currency_ref = self.return_first_exist(elem.xpath('@default-currency'))
             default_currency = None
@@ -373,7 +371,7 @@ class Parser():
 
                         language_ref = self.return_first_exist(t.xpath('@xml:lang'))
                         language = None
-                        akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+                        akvo_type = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
                         if title.__len__() > 255:
                             title = title[:255]
 
@@ -406,8 +404,9 @@ class Parser():
                     rsr_type_ref = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/api/v1/iati-activities'}))
                     rsr_type = None
 
-                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
 
+                    akvo_type = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
+ 
                     if language_ref:
                         if models.Language.objects.filter(code=language_ref).exists():
                             language = models.Language.objects.get(code=language_ref)
@@ -501,9 +500,8 @@ class Parser():
 
                     value_date = self.validate_date(self.return_first_exist(t.xpath('value/@value-date')))
 
+                    value_akvo_type = self.return_first_exist(t.xpath('value/@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
 
-            
-                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
                     currency_ref = self.return_first_exist(t.xpath('value/@currency'))
                     currency = None
 
@@ -540,7 +538,7 @@ class Parser():
                         continue
 
 
-                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, currency=currency, akvo_type=akvo_type)
+                    new_budget = models.Budget(activity=activity, type=type, period_start=period_start, period_end=period_end, value=value, value_date=value_date, akvo_type=value_akvo_type, currency=currency)
                     new_budget.save()
 
                 except Exception as e:
@@ -1005,7 +1003,8 @@ class Parser():
                         if models.OrganisationRole.objects.filter(code=role_ref).exists():
                             role = models.OrganisationRole.objects.get(code=role_ref)
 
-                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+                    akvo_type = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
+
                     new_activity_participating_organisation = models.ActivityParticipatingOrganisation(activity=activity, organisation=participating_organisation, role=role, name=name, akvo_type=akvo_type)
                     new_activity_participating_organisation.save()
 
@@ -1189,7 +1188,7 @@ class Parser():
                     point_srs_name = self.return_first_exist(t.xpath('point/@srsName'))
                     point_pos = self.return_first_exist(t.xpath('point/pos/text()'))
 
-                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+                    akvo_type = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
 
                     if type_ref:
                         if models.LocationType.objects.filter(code=type_ref).exists():
@@ -1282,13 +1281,15 @@ class Parser():
                     file_format_ref = self.return_first_exist(t.xpath('@format'))
                     file_format = None
                     title = self.return_first_exist(t.xpath('title/text()'))
+                    title_akvo_type = self.return_first_exist(t.xpath('title/@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
+
                     # doc_category_text = self.return_first_exist(t.xpath('category/text()'))
                     doc_category_ref = self.return_first_exist(t.xpath('category/@code'))
                     doc_category = None
                     # language_ref = self.return_first_exist(t.xpath('language/@code'))
                     # language = None
 
-                    akvo_type = self.return_first_exist(elem.xpath('@akvo:type', namespaces={'akvo': 'www.hardcodednamespace.com'}))
+                    akvo_type = self.return_first_exist(t.xpath('@akvo:type', namespaces={'akvo': 'http://akvo.org/iati-activities'}))
 
 
 
