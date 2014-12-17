@@ -1,4 +1,3 @@
-import django_filters
 from rest_framework import filters
 from rest_framework import generics
 import iati
@@ -6,44 +5,23 @@ from api.activity import serializers
 import api.generics
 
 
-class ActivityFilter(django_filters.FilterSet):
-    min_budget = django_filters.NumberFilter(
-        name='total_budget', lookup_type='gte')
-    reporting_organisation = django_filters.CharFilter(
-        name='reporting_organisation__code',
-        lookup_type='exact'
-    )
-    participating_organisations = django_filters.CharFilter(
-        name='participating_organisations__organisation__code',
-        lookup_type='in'
-    )
-    id = django_filters.Filter(
-        name='id',
-        lookup_type='in'
-    )
-
-    class Meta:
-        model = iati.models.Activity
-        fields = [
-            'id',
-            'total_budget',
-            'min_budget',
-            'reporting_organisation',
-            'participating_organisations'
-        ]
+class CustomFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        print dir(request)
+        print request.QUERY_PARAMS.get('id', '').split(',')
+        return queryset.filter(id=1)
 
 
 class ActivityList(api.generics.DynamicListAPIView):
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = ActivityFilter
     queryset = iati.models.Activity.objects.all()
+    filter_backends = (CustomFilter,)
+    filter_class = CustomFilter  # Not sure if this is needed
     serializer_class = serializers.ActivitySerializer
     fields = [
         'url',
         'id',
         'title',
         'total_budget',
-        'participating_organisations'
     ]
 
 
