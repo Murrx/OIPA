@@ -1,6 +1,33 @@
 from django.db import models
 from geodata.models import Country, Region
 from activity_manager import ActivityQuerySet
+from django.db.models.signals import post_save
+
+def activity_listener(sender, instance, **kwargs):
+    search_data, created = ActivitySearchData.objects.get_or_create(
+        activity=instance)
+    if not search_data.search_identifier:
+        search_data.search_identifier = instance.iati_identifier
+        search_data.save()
+
+
+def title_listener(sender, instance, **kwargs):
+    search_data, created = ActivitySearchData.objects.get_or_create(
+        activity=instance.activity)
+    if search_data.search_title:
+        search_data.search_title = '{0}||{1}'.format(search_data.search_title, instance.title)
+    else:
+        search_data.search_title = instance.title or ''
+    search_data.save()
+
+def description_listener(sender, instance, **kwargs):
+    search_data, created = ActivitySearchData.objects.get_or_create(
+        activity=instance.activity)
+    if search_data.search_description:
+        search_data.search_description = '{0}||{1}'.format(search_data.search_description, instance.description)
+    else:
+        search_data.search_description = instance.description or ''
+    search_data.save()
 
 
 class ActivityDateType(models.Model):
@@ -452,6 +479,8 @@ class Activity(models.Model):
 
     class Meta:
         verbose_name_plural = "activities"
+post_save.connect(activity_listener, sender=Activity, dispatch_uid='save activity')
+
 
 class ActivitySearchData(models.Model):
     activity = models.OneToOneField(Activity)
@@ -680,6 +709,7 @@ class Title(models.Model):
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.title)
+post_save.connect(title_listener, sender=Title, dispatch_uid='save title')
 
 
 class Description(models.Model):
@@ -692,6 +722,7 @@ class Description(models.Model):
 
     def __unicode__(self,):
         return "%s - %s" % (self.activity, self.type)
+post_save.connect(description_listener, sender=Description, dispatch_uid='save description')
 
 
 class Budget(models.Model):

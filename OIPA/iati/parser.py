@@ -122,7 +122,7 @@ class Parser():
 
                 # Extras
                 self.add_total_budget(activity)
-                self.add_activity_search_data(activity)
+#               self.add_activity_search_data(activity)
 
         except Exception as e:
                 exception_handler(e, iati_identifier, "add_all_activity_data")
@@ -1453,7 +1453,7 @@ class Parser():
             exception_handler(e, activity.id, "add_total_budget")
 
     def add_activity_search_data(self, activity):
-        search_data = models.ActivitySearchData(activity = activity)
+        search_data = models.ActivitySearchData.objects.get_or_create(activity = activity)
 
         search_data.search_identifier = activity.iati_identifier
         for title in activity.title_set.all():
