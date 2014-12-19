@@ -1,3 +1,4 @@
+import pdb
 from django.db import models
 from geodata.models import Country, Region
 from activity_manager import ActivityQuerySet
@@ -15,19 +16,24 @@ def title_listener(sender, instance, **kwargs):
     search_data, created = ActivitySearchData.objects.get_or_create(
         activity=instance.activity)
     if search_data.search_title:
-        search_data.search_title = '{0}||{1}'.format(search_data.search_title, instance.title)
+        search_data.search_title = u'{0}||{1}'.format(search_data.search_title, instance.title)
     else:
         search_data.search_title = instance.title or ''
     search_data.save()
 
 def description_listener(sender, instance, **kwargs):
-    search_data, created = ActivitySearchData.objects.get_or_create(
-        activity=instance.activity)
-    if search_data.search_description:
-        search_data.search_description = '{0}||{1}'.format(search_data.search_description, instance.description)
-    else:
-        search_data.search_description = instance.description or ''
-    search_data.save()
+    try:
+        search_data, created = ActivitySearchData.objects.get_or_create(
+            activity=instance.activity)
+        if search_data.search_description:
+            search_data.search_description = u'{0}||{1}'.format(search_data.search_description, instance.description)
+        else:
+            search_data.search_description = instance.description or ''
+        search_data.save()
+    except Exception as e:
+        import traceback
+        trace = traceback.format_exc(e)
+        pdb.set_trace()
 
 
 class ActivityDateType(models.Model):
