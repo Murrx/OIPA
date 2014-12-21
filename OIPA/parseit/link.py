@@ -1,11 +1,27 @@
+import os
+import sys
+# Ugliest code ever to get OIPA's root directory
+OIPA_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
+sys.path.append(OIPA_ROOT)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'OIPA.settings'
+
 from lxml import etree
+from iati import models
+
+
+class ElementMapper:
+    def __init__(self, xml_name, parser):
+        self._xml_name = xml_name
+        self._parser = parser
+
+
+class AttributeMapper:
+    def __init__(self, xml_name):
+        self._xml_name = xml_name
 
 
 class GenericParser:
-    _object_instance = None
-    _xml_element = None
-    _exception_log = None
-
     def __init__(self, element):
         self._xml_element = element
         self._object_instance = self.Meta.model
@@ -13,46 +29,47 @@ class GenericParser:
 
     def parse(self):
         print 'PARSING: {0}'.format(self._object_instance)
+
+        # Parse attributes
         for name, value in self._xml_element.items():
             print '{0}: {1}'.format(name, value)
-        if self.freetext:
+
+        # Parse freetext
+        if hasattr(self.Meta, 'freetext'):
             print self._xml_element.text
         print ''
 
-        if len(self._xml_element):  # check if the element has children
-            print 'PARSING CHILDREN:'
+        # Parse elements
         for element in self._xml_element.iterchildren():
-            if element.tag in self.elements:
-                child_parser_class = self.elements[element.tag]['parser']
-                child_parser = child_parser_class(element)
-                child_parser.parse()
+            try:
+                if element.tag in self.Meta.elements:
+                    mapper = getattr(self, 'description')
+                    parser = mapper._parser(element)
+                    parser.parse()
+            except AttributeError as e:
+                print e
 
 
 class DescriptionParser(GenericParser):
+    type = AttributeMapper('type')
+
     class Meta:
         tag = 'description'
-        model = 'iati.models.Descripion'
-
-    items = {'type': 'type_id', }
-    elements = None
-    freetext = True
+        model = models.Description
+        attributes = ('type',)
+        freetext = 'description'
 
 
 class ActivityParser(GenericParser):
+    default_currency = AttributeMapper('default-currency')
+    iati_standard_version = AttributeMapper('version')
+    description = ElementMapper('description', DescriptionParser)
+
     class Meta:
         tag = 'iati-activity'
-        model = 'iati.models.Activity'
-
-    items = {
-        'deafult-currency': 'default_currency',
-        'version': 'iati_standard_version',
-    }
-    elements = {
-        'description': {
-            'parser': DescriptionParser,
-            'relation': 'description_set'},
-    }
-    freetext = None
+        model = models.Activity
+        attributes = ('default_currency', 'version',)
+        elements = ('description',)
 
 
 def parse_xml(xml_file):
