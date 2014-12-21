@@ -5,49 +5,72 @@ OIPA_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
 sys.path.append(OIPA_ROOT)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'OIPA.settings'
+# import django
+# django.setup()
 
 from lxml import etree
 from iati import models
 
 
-class ElementMapper:
+class Mapper:
+    pass
+
+
+class ElementMapper(Mapper):
     def __init__(self, xml_name, parser):
         self._xml_name = xml_name
         self._parser = parser
 
 
-class AttributeMapper:
+class AttributeMapper(Mapper):
     def __init__(self, xml_name):
         self._xml_name = xml_name
 
 
 class GenericParser:
+    def register_mappers(self):
+        attributes = [a for a in dir(self) if not callable(a)]
+        for attr_str in attributes:
+            attr = getattr(self, attr_str)
+            if isinstance(attr, Mapper):
+                attr._fieldname = attr_str
+                if isinstance(attr, ElementMapper):
+                    self._elements[attr._xml_name] = attr
+                if isinstance(attr, AttributeMapper):
+                    self._attributes[attr._xml_name] = attr
+
     def __init__(self, element):
         self._xml_element = element
-        self._object_instance = self.Meta.model
+        self._object_instance = None
         self._exception_log = 'Need to create a log class'
+        self._attributes = dict()
+        self._elements = dict()
+        self.register_mappers()
 
     def parse(self):
-        print 'PARSING: {0}'.format(self._object_instance)
+        # self._instance = self.Meta.model()
+        print 'PARSING: {0}'.format(self.Meta.model)
 
         # Parse attributes
         for name, value in self._xml_element.items():
-            print '{0}: {1}'.format(name, value)
+            if name in self._attributes:
+                mapper = self._attributes.get(name)
+                print 'mapping found for attribute: {0} = {1}'.format(
+                    name, value)
 
         # Parse freetext
         if hasattr(self.Meta, 'freetext'):
-            print self._xml_element.text
+            print 'mapping found for freetext: {0}'.format(
+                self._xml_element.text)
         print ''
 
         # Parse elements
         for element in self._xml_element.iterchildren():
-            try:
-                if element.tag in self.Meta.elements:
-                    mapper = getattr(self, 'description')
-                    parser = mapper._parser(element)
-                    parser.parse()
-            except AttributeError as e:
-                print e
+            if element.tag in self._elements:
+                mapper = self._elements.get(element.tag)
+                print 'mapping found for element: {0}'.format(element)
+                parser = mapper._parser(element)
+                parser.parse()
 
 
 class DescriptionParser(GenericParser):
@@ -56,7 +79,6 @@ class DescriptionParser(GenericParser):
     class Meta:
         tag = 'description'
         model = models.Description
-        attributes = ('type',)
         freetext = 'description'
 
 
@@ -68,8 +90,6 @@ class ActivityParser(GenericParser):
     class Meta:
         tag = 'iati-activity'
         model = models.Activity
-        attributes = ('default_currency', 'version',)
-        elements = ('description',)
 
 
 def parse_xml(xml_file):
