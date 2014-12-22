@@ -5,8 +5,8 @@ OIPA_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
 sys.path.append(OIPA_ROOT)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'OIPA.settings'
-# import django
-# django.setup()
+import django
+django.setup()
 
 from lxml import etree
 from iati import models
@@ -17,9 +17,10 @@ class Mapper:
 
 
 class ElementMapper(Mapper):
-    def __init__(self, xml_name, parser):
+    def __init__(self, xml_name, parser, relation_field):
         self._xml_name = xml_name
         self._parser = parser
+        self._relation_field = relation_field
 
 
 class AttributeMapper(Mapper):
@@ -41,40 +42,37 @@ class GenericParser:
 
     def __init__(self, element):
         self._xml_element = element
-        self._object_instance = None
-        self._exception_log = 'Need to create a log class'
         self._attributes = dict()
         self._elements = dict()
         self.register_mappers()
 
     def parse(self):
-        # self._instance = self.Meta.model()
-        print 'PARSING: {0}'.format(self.Meta.model)
+        _dict = dict()
 
         # Parse attributes
         for name, value in self._xml_element.items():
             if name in self._attributes:
                 mapper = self._attributes.get(name)
-                print 'mapping found for attribute: {0} = {1}'.format(
-                    name, value)
+                _dict[mapper._fieldname] = value
 
         # Parse freetext
         if hasattr(self.Meta, 'freetext'):
-            print 'mapping found for freetext: {0}'.format(
-                self._xml_element.text)
-        print ''
+            _dict[self.Meta.freetext] = self._xml_element.text
+
+        result = self.Meta.model(**_dict)
 
         # Parse elements
         for element in self._xml_element.iterchildren():
             if element.tag in self._elements:
                 mapper = self._elements.get(element.tag)
-                print 'mapping found for element: {0}'.format(element)
                 parser = mapper._parser(element)
-                parser.parse()
+                obj = parser.parse()
+                setattr(obj, mapper._relation_field, result)
+        return result
 
 
 class DescriptionParser(GenericParser):
-    type = AttributeMapper('type')
+    type_id = AttributeMapper('type')
 
     class Meta:
         tag = 'description'
@@ -83,9 +81,10 @@ class DescriptionParser(GenericParser):
 
 
 class ActivityParser(GenericParser):
-    default_currency = AttributeMapper('default-currency')
+    default_currency_id = AttributeMapper('default-currency')
     iati_standard_version = AttributeMapper('version')
-    description = ElementMapper('description', DescriptionParser)
+    description = ElementMapper(
+        'description', DescriptionParser, 'activity')
 
     class Meta:
         tag = 'iati-activity'
