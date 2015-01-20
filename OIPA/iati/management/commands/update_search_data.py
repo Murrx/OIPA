@@ -1,17 +1,44 @@
 from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.db.backends import BaseDatabaseWrapper
+from django.db.backends.util import CursorWrapper
+import gc
+from sys import stdout
 from iati import models
+
+if settings.DEBUG:
+    print 'Disabling debug_cursor'
+    BaseDatabaseWrapper.make_debug_cursor = \
+        lambda self, cursor: CursorWrapper(cursor, self)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        for activity in models.Activity.objects.all():
-            self.add_activity_search_data(activity)
-        
+        pk = 0
+        qs = models.Activity.objects.all()
+        last_pk = qs.order_by('-pk')[0].pk
+        qs = qs.order_by('pk')
+        count = qs.count()
+        index = 0
 
+        print 'updating search data for {0} activities'.format(count)
+        while pk < last_pk:
+            for activity in qs.filter(pk__gt=pk)[:1000]:
+                stdout.write('updating %d/%d\r' % (index, count)),
+                pk = activity.pk
+                index += 1
+                self.add_activity_search_data(activity)
+            gc.collect()
+        print
 
     def add_activity_search_data(self, activity):
-        
-        search_data = models.ActivitySearchData(activity = activity)
+        try:
+            data = models.ActivitySearchData.objects.get(activity=activity)
+            data.delete()
+        except models.ActivitySearchData.DoesNotExist:
+            pass
+
+        search_data = models.ActivitySearchData(activity=activity)
 
         search_data.search_identifier = activity.iati_identifier
         for title in activity.title_set.all():
@@ -50,7 +77,7 @@ class Command(BaseCommand):
                 add_organisation_name=organisation.name or ''
             )
 
-        if not activity.reporting_organisation is None:
+        if activity.reporting_organisation is not None:
             search_data.search_reporting_organisation_name = u'{add_organisation_name}'.format(
                 add_organisation_name=activity.reporting_organisation.name or ''
             )
