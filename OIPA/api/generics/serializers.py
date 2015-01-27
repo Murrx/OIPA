@@ -72,8 +72,7 @@ class DynamicFields(object):
                 if fields:
                     self.selected_fields = list(fields)
             if query_params:
-                params = dict(query_params)
-                self.fields_from_query_params(params)
+                self.fields_from_query_params(query_params)
 
         if self.selected_fields is not None:
             keep_fields = set(self.selected_fields)
