@@ -7,6 +7,16 @@ from api.activity.aggregation import AggregationsSerializer
 
 
 class CountrySerializer(DynamicFieldsModelSerializer):
+    class ActivitiesSerializer(serializers.Serializer):
+        activities = serializers.HyperlinkedIdentityField(
+        view_name='country-activities')
+        aggregations = AggregationsSerializer(source='activity_set', fields=())
+
+        class Meta:
+            fields = (
+                'activities',
+                'aggregations')
+
     class BasicCitySerializer(serializers.ModelSerializer):
         url = serializers.HyperlinkedIdentityField(view_name='city-detail')
 
@@ -25,12 +35,10 @@ class CountrySerializer(DynamicFieldsModelSerializer):
     capital_city = BasicCitySerializer()
     location = JSONField(source='center_longlat.json')
     polygon = JSONField()
-    activities = serializers.HyperlinkedIdentityField(
-        view_name='country-activities')
+    activities = ActivitiesSerializer(source='*')
     indicators = serializers.HyperlinkedIdentityField(
         view_name='country-indicators')
     cities = serializers.HyperlinkedIdentityField(view_name='country-cities')
-    aggregations = AggregationsSerializer(source='activity_set', fields=())
 
     class Meta:
         model = geodata.models.Country
@@ -54,7 +62,6 @@ class CountrySerializer(DynamicFieldsModelSerializer):
             'indicators',
             # 'adm1region_set',
             'cities',
-            'aggregations',
             'location',
             'polygon',
         )
