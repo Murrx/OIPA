@@ -29,58 +29,47 @@ class DynamicFields(object):
 
     def __init__(self, *args, **kwargs):
         self.query_field = kwargs.pop('query_field', 'fields')
-        self._selected_fields = kwargs.pop('fields', None)
+        self.selected_fields = kwargs.pop('fields', None)
+        if self.selected_fields is not None:
+            self.selected_fields = list(self.selected_fields)
         self.fields_selected = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
 
-    def _selected_fields_from_query_params(self, query_params):
-        selected_fields = []
+    def fields_from_query_params(self, query_params):
+        if self.query_field in query_params and self.is_root_dynamic_fields:
+            self.selected_fields = query_params[self.query_field][0].split(',')
 
-        if self.query_field in query_params:
-            selected_fields = query_params[self.query_field].split(',')
-
-        fields_dict = utils.get_type_parameters(self.query_field, query_params)
-        for k, v in fields_dict.items():
-            if k in self.fields.keys():
-                selected_fields.append(k)
-                self.fields[k].selected_fields = v.split(',')
-
-        return selected_fields
-
-    @property
-    def selected_fields(self):
-        """
-        Returns the selected fields in the DynamicFieldsSerializer.
-        """
-        query_params = utils.query_params_from_context(self.context)
-        view = self.context.get('view')
-
-        if self.is_root_dynamic_fields:
-            if view and self._selected_fields is None:
-                fields = getattr(view, 'fields', None)
-                if fields:
-                    self._selected_fields = fields
-
-            if query_params:
-                fields = self._selected_fields_from_query_params(query_params)
-                if fields:
-                    self._selected_fields = fields
-
-        if self._selected_fields and not isinstance(
-                self._selected_fields, (list, tuple)):
-            raise TypeError(
-                'The `fields` option must be a list or tuple. Got %s.' %
-                type(self._selected_fields).__name__
-            )
-
-        return self._selected_fields
-
-    @selected_fields.setter
-    def selected_fields(self, fields):
-        self._selected_fields = fields
+        for k, v in query_params.items():
+            print k, v
+            stack = utils.get_type_stack(k)
+            field = self
+            for item in stack:
+                if isinstance(field, DynamicFields):
+                    if field.selected_fields:
+                        field.selected_fields.append(item)
+                    else:
+                        field.selected_fields = [item]
+                field = field.fields[item]
+            if field is not self:
+                values = v[0].split(',')
+                print values
+                field.selected_fields = values
+        print self.selected_fields
 
     def select_fields(self):
+
+        if self.is_root_dynamic_fields:
+            query_params = utils.query_params_from_context(self.context)
+            view = self.context.get('view')
+            if view and self.selected_fields is None:
+                fields = getattr(view, 'fields', None)
+                if fields:
+                    self.selected_fields = list(fields)
+            if query_params:
+                params = dict(query_params)
+                self.fields_from_query_params(params)
+
         if self.selected_fields is not None:
             keep_fields = set(self.selected_fields)
             all_fields = set(self.fields.keys())
