@@ -33,12 +33,15 @@ class DynamicFields(object):
         if self.selected_fields is not None:
             self.selected_fields = list(self.selected_fields)
         self.fields_selected = False
+        self.query_select = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
 
     def fields_from_query_params(self, query_params):
+
         if self.query_field in query_params and self.is_root_dynamic_fields:
-            self.selected_fields = query_params[self.query_field][0].split(',')
+            self.selected_fields = query_params[self.query_field].split(',')
+            self.query_select = True
 
         for k, v in query_params.items():
             print k, v
@@ -46,13 +49,15 @@ class DynamicFields(object):
             field = self
             for item in stack:
                 if isinstance(field, DynamicFields):
-                    if field.selected_fields:
+                    if field.selected_fields and field.query_select:
                         field.selected_fields.append(item)
                     else:
                         field.selected_fields = [item]
+                        field.query_select = True
+
                 field = field.fields[item]
             if field is not self:
-                values = v[0].split(',')
+                values = v.split(',')
                 print values
                 field.selected_fields = values
         print self.selected_fields
