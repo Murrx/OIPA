@@ -22,11 +22,10 @@ class DynamicFields(object):
 
     def __init__(self, *args, **kwargs):
         self.query_field = kwargs.pop('query_field', 'fields')
-        self.selected_fields = kwargs.pop('fields', None)
-        if self.selected_fields is not None:
-            self.selected_fields = list(self.selected_fields)
+        self._fields_kwarg = kwargs.pop('fields', None)
+        print self._fields_kwarg
+        self.selected_fields = []
         self.fields_selected = False
-        self.query_select = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
 
@@ -34,50 +33,66 @@ class DynamicFields(object):
 
         if self.query_field in query_params:
             self.selected_fields = query_params[self.query_field].split(',')
-            self.query_select = True
 
         for k, v in query_params.items():
-            print k, v
             stack = utils.get_type_stack(k)
             field = self
             for item in stack:
                 if isinstance(field, DynamicFields):
-                    if field.selected_fields and field.query_select:
-                        field.selected_fields.append(item)
-                    else:
-                        field.selected_fields = [item]
-                        field.query_select = True
+                    field.selected_fields.append(item)
 
                 field = field.fields[item]
             if field is not self:
                 values = v.split(',')
-                print values
                 field.selected_fields = values
-        print self.selected_fields
 
     def select_fields(self):
-        if self.top_dynamic_field is self:
-            query_params = utils.query_params_from_context(self.context)
-            view = self.context.get('view')
 
-            if view and self.selected_fields is None:
-                fields = getattr(view, 'fields', None)
-                if fields:
-                    self.selected_fields = list(fields)
+        # If we've been here before, skip it.
+        if self.fields_selected:
+            print "return been here"
+            return
 
-            if query_params:
-                self.fields_from_query_params(query_params)
+        query_params = utils.query_params_from_context(self.context)
+        is_top = self.top_dynamic_field is self
+        print "is top: " + str(is_top)
 
-        if self.selected_fields is not None:
+        # Retrieve selected_fields from request parameters if the current serializer
+        # is the top serializer.
+        if is_top and query_params:
+            print "istop: queryparams check"
+            self.fields_from_query_params(query_params)
+
+        # If serializer has no selected_fields (from query_params) then try:
+        print "check selected_fields filled by query " + str(self.selected_fields)
+        if not self.selected_fields:
+            # Use fields_kwarg if available to determine selected_fields
+            print "fields_kwarg: " + str(self._fields_kwarg)
+            if self._fields_kwarg:
+                self.selected_fields = self._fields_kwarg
+
+            # If there is no fields_kwarg then check the view. This a workaround. Sometimes
+            # the fields kwarg can not be specified. For example when
+            # ListAPIView is used. The the object_serializer is instantiated DRF itself.
+            elif is_top:
+                print "from view"
+                view = self.context.get('view')
+                if view:
+                    self.selected_fields = getattr(view, 'fields', None)
+
+        # Actually remove the fields from the serializer.
+        # Only do this if selected_fields is filled
+        if self.selected_fields or self._fields_kwarg is not None:
+            print "Removing fields, keeping " + str(self.selected_fields)
             keep_fields = set(self.selected_fields)
+            print "actual " + str(keep_fields)
             all_fields = set(self.fields.keys())
             for field_name in all_fields - keep_fields:
                 del self.fields[field_name]
+        self.fields_selected = True
 
     def to_representation(self, instance):
-        if not self.fields_selected:
-            self.select_fields()
-            self.fields_selected = True
+        self.select_fields()
         return super(DynamicFields, self).to_representation(instance)
 
 
