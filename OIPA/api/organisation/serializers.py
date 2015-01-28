@@ -2,6 +2,7 @@ import iati
 from rest_framework import serializers
 from api.generics.serializers import DynamicFieldsModelSerializer
 from api.fields import EncodedHyperlinkedIdentityField
+from api.activity.aggregation import AggregationsSerializer
 
 
 class BasicOrganisationSerializer(DynamicFieldsModelSerializer):
@@ -18,17 +19,25 @@ class BasicOrganisationSerializer(DynamicFieldsModelSerializer):
 
 
 class OrganisationSerializer(BasicOrganisationSerializer):
+    class ReportedActivitiesSerializer(serializers.Serializer):
+        url = EncodedHyperlinkedIdentityField(
+            view_name='organisation-reported-activities')
+        aggregations = AggregationsSerializer(source='activity_reporting_organisation', fields=())
+
+    class ParticipatedActivitiesSerializer(serializers.Serializer):
+        url = EncodedHyperlinkedIdentityField(
+            view_name='organisation-participated-activities')
+        aggregations = AggregationsSerializer(source='activity_set', fields=())
+
     class TypeSerializer(serializers.ModelSerializer):
         class Meta:
             model = iati.models.OrganisationType
             fields = ('code',)
 
     type = TypeSerializer()
-    reported_activities = EncodedHyperlinkedIdentityField(
-        view_name='organisation-reported-activities')
-    participated_activities = EncodedHyperlinkedIdentityField(
-        view_name='organisation-participated-activities')
-    
+    reported_activities = ReportedActivitiesSerializer(source='*')
+    participated_activities = ParticipatedActivitiesSerializer(source='*')
+
     provided_transactions = EncodedHyperlinkedIdentityField(
         view_name='organisation-provided-transactions')
     received_transactions = EncodedHyperlinkedIdentityField(

@@ -8,14 +8,9 @@ from api.activity.aggregation import AggregationsSerializer
 
 class CountrySerializer(DynamicFieldsModelSerializer):
     class ActivitiesSerializer(serializers.Serializer):
-        activities = serializers.HyperlinkedIdentityField(
-        view_name='country-activities')
+        url = serializers.HyperlinkedIdentityField(
+            view_name='country-activities')
         aggregations = AggregationsSerializer(source='activity_set', fields=())
-
-        class Meta:
-            fields = (
-                'activities',
-                'aggregations')
 
     class BasicCitySerializer(serializers.ModelSerializer):
         url = serializers.HyperlinkedIdentityField(view_name='city-detail')

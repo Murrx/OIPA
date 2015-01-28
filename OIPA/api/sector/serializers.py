@@ -13,11 +13,14 @@ class SectorCategorySerializer(serializers.ModelSerializer):
 
 
 class SectorSerializer(DynamicFieldsModelSerializer):
+    class ActivitiesSerializer(serializers.Serializer):
+        url = serializers.HyperlinkedIdentityField(
+            view_name='sector-activities')
+        aggregations = AggregationsSerializer(source='activity_set', fields=())
+
     url = serializers.HyperlinkedIdentityField(view_name='sector-detail')
     category = SectorCategorySerializer()
-    activities = serializers.HyperlinkedIdentityField(
-        view_name='sector-activities')
-    aggregations = AggregationsSerializer(source='activity_set', fields=())
+    activities = ActivitiesSerializer(source='*')
 
     class Meta:
         model = iati.models.Sector
@@ -27,6 +30,5 @@ class SectorSerializer(DynamicFieldsModelSerializer):
             'name',
             'description',
             'category',
-            'activities',
-            'aggregations'
+            'activities'
         )
