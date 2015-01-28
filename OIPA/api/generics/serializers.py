@@ -6,26 +6,19 @@ from rest_framework.pagination import PaginationSerializer
 class DynamicFields(object):
 
     @property
-    def is_root_dynamic_fields(self):
+    def top_dynamic_field(self):
         """
-        Returns true if the current DynamicFields serializer is the root
-        DynamicFields serializer.
+        Returns the highest (top) DynamicFields serializer.
         """
-        parent = self.parent
-        root = self.root
-        result = None
+        current = self
+        top = self
 
-        if parent is None:
-            return True
+        while hasattr(current, 'parent'):
+            if isinstance(current, DynamicFields):
+                top = current
+            current = current.parent
 
-        while result is None:
-            if root == parent or not hasattr(parent, 'parent'):
-                result = True
-            if isinstance(parent, DynamicFields):
-                result = False
-            else:
-                parent = parent.parent
-        return result
+        return top
 
     def __init__(self, *args, **kwargs):
         self.query_field = kwargs.pop('query_field', 'fields')
@@ -39,7 +32,7 @@ class DynamicFields(object):
 
     def fields_from_query_params(self, query_params):
 
-        if self.query_field in query_params and self.is_root_dynamic_fields:
+        if self.query_field in query_params:
             self.selected_fields = query_params[self.query_field].split(',')
             self.query_select = True
 
@@ -63,14 +56,15 @@ class DynamicFields(object):
         print self.selected_fields
 
     def select_fields(self):
-
-        if self.is_root_dynamic_fields:
+        if self.top_dynamic_field is self:
             query_params = utils.query_params_from_context(self.context)
             view = self.context.get('view')
+
             if view and self.selected_fields is None:
                 fields = getattr(view, 'fields', None)
                 if fields:
                     self.selected_fields = list(fields)
+
             if query_params:
                 self.fields_from_query_params(query_params)
 
