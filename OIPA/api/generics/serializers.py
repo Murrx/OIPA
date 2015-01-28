@@ -23,22 +23,19 @@ class DynamicFields(object):
     def __init__(self, *args, **kwargs):
         self.query_field = kwargs.pop('query_field', 'fields')
         self._fields_kwarg = kwargs.pop('fields', None)
-        print self._fields_kwarg
-        self.selected_fields = []
+        self.selected_fields = None
         self.fields_selected = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
 
-    def fields_from_query_params(self, query_params):
-
-        if self.query_field in query_params:
-            self.selected_fields = query_params[self.query_field].split(',')
-
+    def sub_fields_query_params(self, query_params):
         for k, v in query_params.items():
             stack = utils.get_type_stack(k)
             field = self
             for item in stack:
                 if isinstance(field, DynamicFields):
+                    if field.selected_fields is None:
+                        field.selected_fields = []
                     field.selected_fields.append(item)
 
                 field = field.fields[item]
@@ -47,42 +44,35 @@ class DynamicFields(object):
                 field.selected_fields = values
 
     def select_fields(self):
-
         # If we've been here before, skip it.
-        if self.fields_selected:
-            print "return been here"
+        if self.selected_fields is not None:
             return
 
-        query_params = utils.query_params_from_context(self.context)
+        fields = None
         is_top = self.top_dynamic_field is self
-        print "is top: " + str(is_top)
 
         # Retrieve selected_fields from request parameters if the current serializer
         # is the top serializer.
-        if is_top and query_params:
-            print "istop: queryparams check"
-            self.fields_from_query_params(query_params)
+        if is_top:
+            query_params = utils.query_params_from_context(self.context)
+            view = self.context.get('view')
 
-        # If serializer has no selected_fields (from query_params) then try:
-        print "check selected_fields filled by query " + str(self.selected_fields)
+            if query_params:
+                if self.query_field in query_params:
+                    fields = query_params[self.query_field].split(',')
+                # DO sub fields
+                self.sub_fields_query_params(query_params)
+
+            elif view:
+                fields = getattr(view, self.query_field, None)
+
+        if not fields:
+            fields = getattr(self, '_fields_kwarg', None)
+
         if not self.selected_fields:
-            # Use fields_kwarg if available to determine selected_fields
-            print "fields_kwarg: " + str(self._fields_kwarg)
-            if self._fields_kwarg:
-                self.selected_fields = self._fields_kwarg
+            self.selected_fields = fields
 
-            # If there is no fields_kwarg then check the view. This a workaround. Sometimes
-            # the fields kwarg can not be specified. For example when
-            # ListAPIView is used. The the object_serializer is instantiated DRF itself.
-            elif is_top:
-                print "from view"
-                view = self.context.get('view')
-                if view:
-                    self.selected_fields = getattr(view, 'fields', None)
-
-        # Actually remove the fields from the serializer.
-        # Only do this if selected_fields is filled
-        if self.selected_fields or self._fields_kwarg is not None:
+        if self.selected_fields is not None:
             print "Removing fields, keeping " + str(self.selected_fields)
             keep_fields = set(self.selected_fields)
             print "actual " + str(keep_fields)
