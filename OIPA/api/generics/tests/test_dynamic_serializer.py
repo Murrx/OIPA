@@ -33,6 +33,7 @@ class TestDynamicFields:
     def test_fields_serializer(self):
         request = RequestFactory().get('/')
         context = {
+            'view': SimpleView,
             'request': request
         }
         serializer = SimpleModelSerializer(
@@ -110,21 +111,3 @@ class TestDynamicFields:
         assert 'description' not in serializer.data, \
             'description should not be serialized ' \
             'because it is not defined in view.fields'
-
-    def test_view_over_request_fields_serializer(self):
-        context = {
-            'view': SimpleView
-        }
-        serializer = SimpleModelSerializer(
-            data=self.data,
-            context=context,
-            fields=('name, description'))
-        serializer.is_valid()
-        assert 'id' in serializer.data, \
-            'id should be serialized because it is defined in view.fields'
-        assert 'name' not in serializer.data, \
-            'name should not be serialized ' \
-            'because the view fields are used when specified'
-        assert 'description' not in serializer.data, \
-            'description should not be serialized ' \
-            'because the view fields are used when specified'

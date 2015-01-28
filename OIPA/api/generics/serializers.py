@@ -49,6 +49,7 @@ class DynamicFields(object):
             return
 
         fields = None
+        view_fields = None
         is_top = self.top_dynamic_field is self
 
         # Retrieve selected_fields from request parameters if the current serializer
@@ -56,6 +57,7 @@ class DynamicFields(object):
         if is_top:
             query_params = utils.query_params_from_context(self.context)
             view = self.context.get('view')
+            view_fields = getattr(view, self.query_field, None)
 
             if query_params:
                 if self.query_field in query_params:
@@ -63,11 +65,11 @@ class DynamicFields(object):
                 # DO sub fields
                 self.sub_fields_query_params(query_params)
 
-            elif view:
-                fields = getattr(view, self.query_field, None)
-
         if not fields:
             fields = getattr(self, '_fields_kwarg', None)
+        
+        if not fields and view_fields:
+            fields = view_fields
 
         if not self.selected_fields:
             self.selected_fields = fields
