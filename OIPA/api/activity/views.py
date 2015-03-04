@@ -8,6 +8,7 @@ from api.activity.aggregation import AggregationsPaginationSerializer
 from api.generics.filters import BasicFilterBackend
 from api.generics.filters import SearchFilter
 from api.transaction.serializers import TransactionSerializer
+from api.activity.metadata import HelpMetadata
 
 
 class ActivityList(ListAPIView):
@@ -70,6 +71,7 @@ class ActivityList(ListAPIView):
     serializer_class = serializers.ActivitySerializer
     fields = ('url', 'id', 'title', 'total_budget')
     pagination_serializer_class = AggregationsPaginationSerializer
+    metadata_class = HelpMetadata
 
 
 class ActivityDetail(RetrieveAPIView):
