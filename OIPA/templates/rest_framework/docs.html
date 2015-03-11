@@ -1,0 +1,33 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+
+
+{% block title %}OIPA API DOCS{% endblock %}
+
+{% block branding %}
+    <a class="navbar-brand" href="/api">OIPA API v4 DOCS</a>
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block buttons %}
+    <form class="button-form" action="{% url 'activity-list' %}" method="GET">
+        <button class="btn btn-primary js-tooltip"
+            title="Return to the API">API
+        </button>
+    </form>
+{% endblock %}
+
+{% block main-content %}
+
+
+    <div class="content-main">    
+        <h1>Field Selection</h1>
+        <p>description: {{ description }}</p>        
+        <p>usage: {{ usage }}</p>
+        <p>example usage: {{ example_usage }}</p>
+        <p>available fields: {{ available_fields }}</p>
+        <p>default fields: {{ default_fields }}</p>
+    </div>
+{% endblock %}

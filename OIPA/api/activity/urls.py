@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
 import api.activity.views
+from api.activity import doc_views
 import api.sector.views
 
 
@@ -8,6 +9,9 @@ urlpatterns = patterns(
     url(r'^$',
         api.activity.views.ActivityList.as_view(),
         name='activity-list'),
+    url(r'^/docs$',
+        doc_views.activity_list,
+        name='activity-list-docs'),
     url(r'^/(?P<pk>[^@$&+,/:;=?]+)$',
         api.activity.views.ActivityDetail.as_view(),
         name='activity-detail'),
