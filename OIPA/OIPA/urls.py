@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.views.generic.base import RedirectView
-from api.v3.urls import api_v3_docs
+from api import docs_views
 
 
 admin.autodiscover()
@@ -17,6 +17,7 @@ urlpatterns = patterns(
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api', include('api.urls')),
+    url(r'^docs(?P<api_call>/api.*)', docs_views.activity_list, name='docs'),
     url(r'^$',
         RedirectView.as_view(url='/api', permanent=True),
         name='index')

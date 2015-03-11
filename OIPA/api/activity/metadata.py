@@ -6,7 +6,7 @@ class HelpMetadata(BaseMetadata):
     def determine_metadata(self, request, view):
         return {
             'name': view.get_view_name(),
-            'field selection': FieldsSerializer().to_representation(view),
+            'field_selection': FieldsSerializer().to_representation(view),
             'description': view.get_view_description(),
             'filtering': FiltersSerializer().to_representation(view),
         }

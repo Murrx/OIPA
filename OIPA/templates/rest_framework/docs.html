@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block buttons %}
-    <form class="button-form" action="{% url 'activity-list' %}" method="GET">
+    <form class="button-form" action="{{ original_call }}" method="GET">
         <button class="btn btn-primary js-tooltip"
             title="Return to the API">API
         </button>
@@ -20,14 +20,12 @@
 {% endblock %}
 
 {% block main-content %}
-
-
     <div class="content-main">    
         <h1>Field Selection</h1>
-        <p>description: {{ description }}</p>        
-        <p>usage: {{ usage }}</p>
-        <p>example usage: {{ example_usage }}</p>
-        <p>available fields: {{ available_fields }}</p>
-        <p>default fields: {{ default_fields }}</p>
+        <p>description: {{ field_selection.description }}</p>
+        <p>usage: {{ field_selection.usage }}</p>
+        <p>example usage: {{ field_selection.example_usage }}</p>
+        <p>available fields: {{ field_selection.available_fields }}</p>
+        <p>default fields: {{ field_selection.default_fields }}</p>
     </div>
 {% endblock %}

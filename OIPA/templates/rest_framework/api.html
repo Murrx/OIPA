@@ -88,9 +88,9 @@
                             <input type="hidden" name="{{ api_settings.FORM_METHOD_OVERRIDE }}" value="OPTIONS" />
                             <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
                         </form>
-                        <form class="button-form" action="{% url 'activity-list-docs' %}" method="GET">
-                            <button class="btn btn-primary js-tooltip" title="Read the documentation for the {{ name }} resource">DOCUMENTATION</button>
-                         </form>
+                        <form class="button-form" action="{% url 'docs' request.get_full_path %}" method="GET">
+                                <button class="btn btn-primary js-tooltip" title="Read the documentation for the {{ name }} resource">DOCUMENTATION</button>
+                        </form>
                     {% endif %}
 
                     {% if delete_form %}
