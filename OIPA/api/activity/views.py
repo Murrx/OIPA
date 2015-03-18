@@ -8,7 +8,7 @@ from api.activity.aggregation import AggregationsPaginationSerializer
 from api.generics.filters import BasicFilterBackend
 from api.generics.filters import SearchFilter
 from api.transaction.serializers import TransactionSerializer
-from api.activity.metadata import HelpMetadata
+from api.metadata import HelpMetadata
 
 
 class ActivityList(ListAPIView):
@@ -106,6 +106,7 @@ class ActivityDetail(RetrieveAPIView):
     """
     queryset = Activity.objects.all()
     serializer_class = serializers.ActivitySerializer
+    metadata_class = HelpMetadata
 
 
 class ActivitySectors(ListAPIView):
@@ -134,6 +135,7 @@ class ActivitySectors(ListAPIView):
 
     """
     serializer_class = serializers.ActivitySectorSerializer
+    metadata_class = HelpMetadata
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -156,6 +158,7 @@ class ActivityParticipatingOrganisations(ListAPIView):
 
     """
     serializer_class = serializers.ParticipatingOrganisationSerializer
+    metadata_class = HelpMetadata
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -178,6 +181,7 @@ class ActivityRecipientCountries(ListAPIView):
 
     """
     serializer_class = serializers.RecipientCountrySerializer
+    metadata_class = HelpMetadata
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -200,6 +204,7 @@ class ActivityRecipientRegions(ListAPIView):
 
     """
     serializer_class = serializers.ActivityRecipientRegionSerializer
+    metadata_class = HelpMetadata
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -239,6 +244,7 @@ class ActivityTransactions(ListAPIView):
 
     """
     serializer_class = TransactionSerializer
+    metadata_class = HelpMetadata
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')

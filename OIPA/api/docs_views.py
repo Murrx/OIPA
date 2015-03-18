@@ -4,7 +4,6 @@ from django.shortcuts import render
 
 
 def activity_list(request, api_call):
-
     host = request.META['HTTP_HOST']
     call = '{0}{1}'.format(host, api_call)
 
@@ -22,7 +21,10 @@ def activity_list(request, api_call):
     if connection.code == 200:
         data = connection.read()
     else:
-        print 'panic!'
+        raise Exception("""
+        Failed internal api call. Execute option call for this API endpoint to
+        get stacktrace
+        """)
 
     context = json.loads(data)
     context['original_call'] = api_call
