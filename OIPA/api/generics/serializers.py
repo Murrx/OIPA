@@ -5,6 +5,42 @@ from rest_framework.pagination import PaginationSerializer
 
 class DynamicFields(object):
 
+    def select_query_parameters(self):
+        all_parameters = utils.query_params_from_context(self.context)
+        for key, value in all_parameters.viewitems():
+            identifier, param = utils.split_parameter_key(key)
+            serializer_identifier = self.serializer_identifier
+            if identifier == serializer_identifier:
+                self.parameters.append((param, value))
+
+        print '{0} has selected parameters: {1}'.format(serializer_identifier, self.parameters)
+        self.parameters_selected = True
+
+    def _serializer_identifier_iterator(self):
+        """
+        after recursive itteration returns parameter identifier without the
+        closing brackets.
+        For example: '[activities[aggregations'
+        """
+        result = '{0}[{1}'.format(
+            getattr(self.parent, 'parameter_identifier', ''),
+            self.field_name)
+        if len(result) > 1:
+            return result
+        else:
+            return ''
+
+    @property
+    def serializer_identifier(self):
+        """
+        Returns the parameter identifier for this Serializer.
+        For exameple: '[activities[aggregations]]'
+        """
+        result = self._serializer_identifier_iterator()
+        for x in range(result.count('[')):
+            result = '{0}]'.format(result)
+        return result
+
     @property
     def top_dynamic_field(self):
         """
@@ -25,6 +61,8 @@ class DynamicFields(object):
         self._fields_kwarg = kwargs.pop('fields', None)
         self.selected_fields = None
         self.fields_selected = False
+        self.parameters = []
+        self.parameters_selected = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
 
@@ -67,7 +105,7 @@ class DynamicFields(object):
 
         if not fields:
             fields = getattr(self, '_fields_kwarg', None)
-        
+
         if not fields and view_fields:
             fields = view_fields
 
@@ -84,6 +122,8 @@ class DynamicFields(object):
         self.fields_selected = True
 
     def to_representation(self, instance):
+        if not self.parameters_selected:
+            self.select_query_parameters()
         self.select_fields()
         return super(DynamicFields, self).to_representation(instance)
 

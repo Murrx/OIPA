@@ -1,13 +1,14 @@
 from rest_framework import serializers
 import geodata
 from api.generics.serializers import DynamicFieldsModelSerializer
+from api.generics.serializers import DynamicFieldsSerializer
 from api.region.serializers import RegionSerializer
 from api.fields import JSONField
 from api.activity.aggregation import AggregationsSerializer
 
 
 class CountrySerializer(DynamicFieldsModelSerializer):
-    class ActivitiesSerializer(serializers.Serializer):
+    class ActivitiesSerializer(DynamicFieldsSerializer):
         url = serializers.HyperlinkedIdentityField(
             view_name='country-activities')
         aggregations = AggregationsSerializer(source='activity_set', fields=())

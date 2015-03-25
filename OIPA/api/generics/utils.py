@@ -1,6 +1,23 @@
 import re
 
 
+def split_parameter_key(query_param):
+    """
+    splits the query param in serializer_identifier and parameter
+    Example:
+        query_param = [activities]fields
+        serializer_identifier = [activities]
+        parameter = fields
+    """
+
+    # the of the last ]. The place where the string thould split
+    index = query_param.rfind(']')
+
+    serializer_identifier = query_param[:index + 1]
+    parameter = query_param[index + 1:]
+    return (serializer_identifier, parameter)
+
+
 def parameter_from_type_query_param(query_param):
     """Returns type name from query_param string."""
     regex = r'\[(.*)\]$'
