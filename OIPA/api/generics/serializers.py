@@ -6,14 +6,19 @@ from rest_framework.pagination import PaginationSerializer
 class DynamicFields(object):
 
     def select_query_parameters(self):
+        """
+        Selects all the query parameters that contain the serializer_identifier
+        for this serializer and stores it in self.parameters
+        """
         all_parameters = utils.query_params_from_context(self.context)
-        for key, value in all_parameters.viewitems():
-            identifier, param = utils.split_parameter_key(key)
+        for k, v in all_parameters.viewitems():
+            identifier, param = utils.split_parameter_key(k)
             serializer_identifier = self.serializer_identifier
             if identifier == serializer_identifier:
-                self.parameters.append((param, value))
-
-        print '{0} has selected parameters: {1}'.format(serializer_identifier, self.parameters)
+                self.parameters[param] = [x.strip() for x in v[0].split(',')]
+                print '{0} has selected parameters: {1}'.format(
+                    serializer_identifier,
+                    self.parameters)
         self.parameters_selected = True
 
     def _serializer_identifier_iterator(self):
@@ -22,9 +27,12 @@ class DynamicFields(object):
         closing brackets.
         For example: '[activities[aggregations'
         """
-        result = '{0}[{1}'.format(
-            getattr(self.parent, 'parameter_identifier', ''),
-            self.field_name)
+        try:
+            result = '{0}[{1}'.format(
+                self.parent._serializer_identifier_iterator(),
+                self.field_name)
+        except AttributeError:
+            result = self.field_name
         if len(result) > 1:
             return result
         else:
@@ -61,7 +69,7 @@ class DynamicFields(object):
         self._fields_kwarg = kwargs.pop('fields', None)
         self.selected_fields = None
         self.fields_selected = False
-        self.parameters = []
+        self.parameters = {}
         self.parameters_selected = False
 
         super(DynamicFields, self).__init__(*args, **kwargs)
@@ -81,6 +89,25 @@ class DynamicFields(object):
                 values = v.split(',')
                 field.selected_fields = values
 
+    def new_select_fields(self):
+        # If we've been here before, skip it.
+        if self.selected_fields is not None:
+            return
+
+        fields = self.parameters.get('fields', None)
+        if not fields:
+            fields = getattr(self, '_fields_kwarg', None)
+
+        self.selected_fields = fields
+
+        if self.selected_fields:
+            keep_fields = set(self.selected_fields)
+            all_fields = set(self.fields.keys())
+
+            for field_name in all_fields - keep_fields:
+                del self.fields[field_name]
+            self.fields_selected = True
+
     def select_fields(self):
         # If we've been here before, skip it.
         if self.selected_fields is not None:
@@ -90,8 +117,8 @@ class DynamicFields(object):
         view_fields = None
         is_top = self.top_dynamic_field is self
 
-        # Retrieve selected_fields from request parameters if the current serializer
-        # is the top serializer.
+        # Retrieve selected_fields from request parameters if the current
+        # serializer is the top serializer.
         if is_top:
             query_params = utils.query_params_from_context(self.context)
             view = self.context.get('view')
@@ -102,6 +129,7 @@ class DynamicFields(object):
                     fields = query_params[self.query_field].split(',')
                 # DO sub fields
                 self.sub_fields_query_params(query_params)
+                # print 'query_params = {0}'.format(query_params)
 
         if not fields:
             fields = getattr(self, '_fields_kwarg', None)
@@ -113,18 +141,21 @@ class DynamicFields(object):
             self.selected_fields = fields
 
         if self.selected_fields is not None:
-            print "Removing fields, keeping " + str(self.selected_fields)
+            # print "Removing fields, keeping " + str(self.selected_fields)
             keep_fields = set(self.selected_fields)
-            print "actual " + str(keep_fields)
+            # print "actual " + str(keep_fields)
             all_fields = set(self.fields.keys())
             for field_name in all_fields - keep_fields:
                 del self.fields[field_name]
         self.fields_selected = True
 
     def to_representation(self, instance):
+        print 'running to_representation() for {0}'.format(
+            self.serializer_identifier)
         if not self.parameters_selected:
             self.select_query_parameters()
-        self.select_fields()
+        # self.select_fields()
+        self.new_select_fields()
         return super(DynamicFields, self).to_representation(instance)
 
 
