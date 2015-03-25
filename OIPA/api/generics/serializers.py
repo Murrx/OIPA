@@ -94,7 +94,17 @@ class DynamicFields(object):
         if self.selected_fields is not None:
             return
 
+        # choose fields to select:
+        # Priorise the fields selection from the url bar
         fields = self.parameters.get('fields', None)
+
+        # Otherwise pick the fields specified in the view
+        if not fields and self == self.top_dynamic_field:
+            view = self.context.get('view')
+            fields = getattr(view, self.query_field, None)
+
+        # Otherwise get the fields that where specified during the
+        # construction of the serializer
         if not fields:
             fields = getattr(self, '_fields_kwarg', None)
 
