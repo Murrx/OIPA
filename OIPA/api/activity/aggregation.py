@@ -51,5 +51,4 @@ class AggregationsPaginationSerializer(NoCountPaginationSerializer):
     aggregations = AggregationsSerializer(
         source='paginator.object_list',
         query_field='aggregations',
-        fields=()
     )

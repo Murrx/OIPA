@@ -16,9 +16,6 @@ class DynamicFields(object):
             serializer_identifier = self.serializer_identifier
             if identifier == serializer_identifier:
                 self.parameters[param] = [x.strip() for x in v[0].split(',')]
-                print '{0} has selected parameters: {1}'.format(
-                    serializer_identifier,
-                    self.parameters)
         self.parameters_selected = True
 
     def _serializer_identifier_iterator(self):
@@ -160,8 +157,6 @@ class DynamicFields(object):
         self.fields_selected = True
 
     def to_representation(self, instance):
-        print 'running to_representation() for {0}'.format(
-            self.serializer_identifier)
         if not self.parameters_selected:
             self.select_query_parameters()
         # self.select_fields()
@@ -191,3 +186,7 @@ class NoCountPaginationSerializer(PaginationSerializer):
         query_params = utils.query_params_from_context(self.context)
         if 'nocount' in query_params:
             del self.fields['count']
+        for key in query_params.keys():
+            if 'aggregations' in key:
+                return
+        del self.fields['aggregations']
