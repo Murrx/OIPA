@@ -32,7 +32,7 @@ class DynamicFields(object):
                 self.parent._serializer_identifier_iterator(),
                 self.field_name)
         except AttributeError:
-            result = self.field_name
+            result = '[{0}'.format(self.field_name)
         if len(result) > 1:
             return result
         else:

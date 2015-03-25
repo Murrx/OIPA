@@ -184,7 +184,7 @@ class ActivityDateSerializer(serializers.Serializer):
         }
 
 
-class ReportingOrganisationSerializer(serializers.ModelSerializer):
+class ReportingOrganisationSerializer(DynamicFieldsModelSerializer):
     organisation = OrganisationSerializer(
         fields=('url', 'code', 'name', 'type'),
         source='reporting_organisation'
@@ -274,7 +274,7 @@ class DescriptionSerializer(serializers.ModelSerializer):
         )
 
 
-class ActivitySectorSerializer(serializers.ModelSerializer):
+class ActivitySectorSerializer(DynamicFieldsModelSerializer):
     class VocabularySerializer(serializers.ModelSerializer):
         code = serializers.CharField()
 
@@ -319,7 +319,7 @@ class ActivityRecipientRegionSerializer(DynamicFieldsModelSerializer):
         )
 
 
-class ParticipatingOrganisationSerializer(serializers.ModelSerializer):
+class ParticipatingOrganisationSerializer(DynamicFieldsModelSerializer):
     class OrganisationRoleSerializer(serializers.ModelSerializer):
         class Meta:
             model = iati.models.OrganisationRole
@@ -388,7 +388,7 @@ class GeographicVocabularySerializer(serializers.ModelSerializer):
         )
 
 
-class LocationSerializer(serializers.ModelSerializer):
+class LocationSerializer(DynamicFieldsModelSerializer):
     class LocationIdSerializer(serializers.Serializer):
         vocabulary = GeographicVocabularySerializer(source='location_id_vocabulary')
         code = serializers.CharField(source='location_id_code')
