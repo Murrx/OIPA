@@ -73,11 +73,15 @@ class BasicFilter(object):
             filter_field = getattr(self, field, None)
 
             if filter_field.lookup_type == 'in':
-                parameter_value = params[field].split(',')
+                try:
+                    parameter_value = params[field].split(',')
+                except AttributeError:
+                    parameter_value = list(params[field])  # is this oke?
             else:
                 parameter_value = params[field]
 
             lookup_parameters[filter_field.lookup_parameter] = parameter_value
+            print 'lookup_parameters = {0}'.format(lookup_parameters)
 
         return lookup_parameters
 

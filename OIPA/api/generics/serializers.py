@@ -3,6 +3,27 @@ from api.generics import utils
 from rest_framework.pagination import PaginationSerializer
 
 
+class FilteredListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        print 'running to representation for FilteredListSerializer'
+        print data.count()
+        import pdb; pdb.set_trace()
+        for field in self.child.fields.values():
+            if hasattr(field, 'serializer_identifier'):
+                print getattr(field, 'serializer_identifier', None)
+                if hasattr(field, 'Meta') and hasattr(
+                        field.Meta, 'filter_class'):
+                    if not field.parameters_selected:
+                        field.select_query_parameters()
+                    filter_class = field.Meta.filter_class()
+                    queryset = filter_class.filter_queryset(
+                        queryset=data,
+                        params=field.parameters
+                    )
+
+        return super(FilteredListSerializer, self).to_representation(queryset)
+
+
 class DynamicFields(object):
 
     def select_query_parameters(self):
@@ -15,7 +36,7 @@ class DynamicFields(object):
             identifier, param = utils.split_parameter_key(k)
             serializer_identifier = self.serializer_identifier
             if identifier == serializer_identifier:
-                self.parameters[param] = [x.strip() for x in v[0].split(',')]
+                self.parameters[param] = set(x.strip() for x in v[0].split(','))
         self.parameters_selected = True
 
     def _serializer_identifier_iterator(self):
@@ -168,6 +189,9 @@ class DynamicFieldsSerializer(DynamicFields, serializers.Serializer):
     def __init__(self, *args, **kwargs):
         # Instantiate mixin, superclass
         super(DynamicFieldsSerializer, self).__init__(*args, **kwargs)
+
+    class Meta:
+        list_serializer_class = FilteredListSerializer
 
 
 class DynamicFieldsModelSerializer(DynamicFields, serializers.ModelSerializer):

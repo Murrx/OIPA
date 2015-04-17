@@ -5,6 +5,8 @@ from api.generics.serializers import DynamicFieldsSerializer
 from api.region.serializers import RegionSerializer
 from api.fields import JSONField
 from api.activity.aggregation import AggregationsSerializer
+from api.generics.serializers import FilteredListSerializer
+from api.activity.filters import ActivityFilter
 
 
 class CountrySerializer(DynamicFieldsModelSerializer):
@@ -12,6 +14,9 @@ class CountrySerializer(DynamicFieldsModelSerializer):
         url = serializers.HyperlinkedIdentityField(
             view_name='country-activities')
         aggregations = AggregationsSerializer(source='activity_set', fields=())
+
+        class Meta:
+            filter_class = ActivityFilter
 
     class BasicCitySerializer(serializers.ModelSerializer):
         url = serializers.HyperlinkedIdentityField(view_name='city-detail')
@@ -37,6 +42,7 @@ class CountrySerializer(DynamicFieldsModelSerializer):
     cities = serializers.HyperlinkedIdentityField(view_name='country-cities')
 
     class Meta:
+        list_serializer_class = FilteredListSerializer
         model = geodata.models.Country
         fields = (
             'url',
