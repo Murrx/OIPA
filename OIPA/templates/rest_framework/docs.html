@@ -19,13 +19,44 @@
     </form>
 {% endblock %}
 
+
 {% block main-content %}
-    <div class="content-main">    
-        <h1>Field Selection</h1>
-        <p>description: {{ field_selection.description }}</p>
-        <p>usage: {{ field_selection.usage }}</p>
-        <p>example usage: {{ field_selection.example_usage }}</p>
-        <p>available fields: {{ field_selection.available_fields }}</p>
-        <p>default fields: {{ field_selection.default_fields }}</p>
+    <div class="page-header">
+        <h1>{{ name }} Documentation</h1>
+    </div>
+    <div class="content-main ">    
+        <h2>{{ general.name }}</h1>
+        <!-- endpoint name -->
+        <!-- description-->
+
+        <h2>{{ field_selection.name }}</h1>
+        <p>{{ field_selection.description }}</p>
+        <p>{{ field_selection.usage }}</p>
+        <p><em>example usage:</em> {{ field_selection.example_usage }}</p>
+        <p><em>available fields:</em><p>
+        <ul>
+            {% for field in field_selection.available_fields %}
+                <li>{{ field }}</li>
+            {% endfor %}
+        </ul>
+        <p><em>default fields:</em></p>
+        <ul>
+            {% for field in field_selection.default_fields%}
+                <li>{{ field }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>{{ filtering.name }}</h1>
+        <p><em>available filters:</em></p>
+        <ul>
+            {% for field in filtering.fields %}
+                <li>{{ field.name }}</li>
+                <ul>
+                    <li>description:</li>
+                    <li>usage:</li>
+                </ul>
+            {% endfor %}
+        </ul>
+
     </div>
 {% endblock %}
